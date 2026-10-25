@@ -1,0 +1,13 @@
+torch>=2.4
+numpy
+scipy
+pyyaml
+einops
+tqdm
+omegaconf
+hydra-core
+huggingface_hub
+transformers
+sacrebleu
+rouge_score
+matplotlib

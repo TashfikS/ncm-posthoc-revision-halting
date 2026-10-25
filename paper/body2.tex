@@ -1,0 +1,95 @@
+\section{Experimental Setup}
+\label{sec:setup}
+\textbf{Code, checkpoints and data.} We use the official HazyResearch/ncm repository~\citep{kumbong2026ncm} without modification, the released \texttt{generator.pt}/\texttt{tokenizer.pt} pairs for Sudoku (easy, medium, hard; 25.6M-parameter generator, 15.0M-parameter tokenizer, 12 levels $[1,2,4,6,9,13,18,26,37,50,67,89]$, codebook size 16), WMT14 De--En~\citep{bojar2014wmt} (11 levels, Qwen3 pre-tokenizer) and XSum~\citep{narayan2018xsum} (9 levels $[4,6,10,14,20,26,32,40,48]$, GPT-2 pre-tokenizer, prefix length 512), and the corresponding files of \texttt{hazyresearch/ncm-datasets}. Our evaluation focuses on conditional generation and constraint-satisfaction tasks with ground-truth references, where exact-match and reference-based fidelity can be computed deterministically, without the variance of an external language-model judge such as the GPT-2 Large perplexity used for unconditional TinyStories~\citep{eldan2023tinystories} generation.
+
+\textbf{Splits.} The released data contain only test files for these tasks (the XSum file \texttt{validation\_cond512\_le48.pickle} is not part of the public dataset repository). We therefore split each official test file deterministically: the first 500 Sudoku boards (per difficulty), 1{,}000 WMT14 sentences and 500 XSum articles are used to train $C_\omega$ and select all hyper-parameters (Section~\ref{sec:select}); results are reported on the next 1{,}500 boards, the remaining 2{,}003 sentences and the next 1{,}000 articles. Zero-shot halting curves (no learned component) additionally use all 2{,}000 Sudoku boards.
+
+\textbf{Baseline reproduction.} The official evaluator was run as \texttt{python evaluate.py --config config/eval/<task>.yaml --checkpoint-dir <ck> --data-dir <data> --out <dir> --gpus 0}. It gives \OffEasy/\OffMedium/\OffHard\% solved boards on the full Sudoku test sets, \OffWmt{} BLEU on WMT14 (3{,}003 sentences) and R-1/R-2/R-L $=$ \OffXsumRone/\OffXsumRtwo/\OffXsumRL{} on the first 1{,}500 XSum articles; these agree with the numbers reported for the released checkpoints~\citep{kumbong2026ncm}. Our wrapped sampler reproduces the official latents bit-exactly (Appendix~\ref{app:repro}); on our test portions NCM scores \BaseEasy/\BaseMedium/\BaseHard\% (Sudoku), \BaseWmt{} BLEU and \BaseXsum{} R-L.
+
+\textbf{Hardware and profiling.} Every number comes from Kaggle Tesla T4 (16\,GB, 14.6\,GB usable) sessions with Python 3.13 and the preinstalled PyTorch~\citep{paszke2019pytorch} CUDA build. Wall-clock latency is the mean over evaluation batches after one untimed warm-up batch, synchronized with \texttt{torch.cuda.synchronize}; peak memory is \texttt{torch.cuda.max\_memory\_allocated}. Variants of the same task were timed in the same session. Hyper-parameters are listed in Table~\ref{tab:hp}.
+
+\input{tab_hp.tex}
+
+\textbf{Runs.} We report three corrector configurations, each with five seeds: (i) \emph{in-loop, no selection}: the final-epoch corrector with learned $\eta_k$ is applied in the generation loop; (ii) \emph{in-loop, validation-selected}: best-validation checkpoint and closed-loop step-size scale $s$ (Section~\ref{sec:select}); (iii) \emph{decode-path}: as (ii) but the corrector acts only on decoded latents, with per-level $s_k$. Halting-only uses uncorrected latents and the rule and $\tau$ selected on the training portion; ``$C_\omega$+halt'' re-selects the rule and $\tau$ with the corrector in place. Configuration (ii) was not run on XSum.
+
+\section{Results and Ablations}
+\label{sec:results}
+\input{tab_main.tex}
+
+\subsection{Main comparison}
+Table~\ref{tab:main} gives the four-way comparison. Three findings hold across all tasks.
+
+\textit{Halting does not trigger at matched quality.} On every task, the rule and $\tau$ selected on the training portion run all $K$ levels, so halting-only coincides with NCM in quality and FLOPs and is marginally slower because of the criterion evaluation. Earlier termination is possible only by accepting large losses (Section~\ref{sec:halt}).
+
+\textit{In-loop correction without selection is harmful.} Feeding the corrected latent back to the generator reduces Sudoku-hard solved boards from \BaseHard\% to \LoopVoneHard\% (5-seed mean), WMT14 from \BaseWmt{} to \LoopVoneWmt{} BLEU and XSum from \BaseXsum{} to \LoopVoneXsum{} R-L; all differences have McNemar or Wilcoxon $p<10^{-4}$. This happens although the open-loop validation MSE of the corrector is lower than that of the uncorrected latent (e.g.\ on WMT14, the epoch-20 rollout MSE is 0.90--1.00 versus 1.19--1.37 without correction).
+
+\textit{With selection, the corrector reduces to (near) identity.} When the step-size scale is chosen by closed-loop validation quality, it is $s=0$ for all five seeds on WMT14 and Sudoku-medium, four of five on Sudoku-easy and three of five on Sudoku-hard; with $s=0$ the corrected sampler is identical to NCM. The largest remaining effect is on Sudoku-hard, \LoopVtwoHard$\pm$\LoopVtwoHardStd\% versus \BaseHard\% solved, which is not significant (smallest McNemar $p=\LoopVtwoHardP$, $t$-test $p=\LoopVtwoHardT$). The decode-path corrector leaves the final level unchanged on every evaluated task because the validation-selected scale at the last level is $0$ for every seed. Both corrected variants cost up to 26\% additional latency and 0.3--3.7\% additional FLOPs.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{figs/fig_dose.pdf}
+\caption{Closed-loop validation quality of the in-loop corrector as a function of its step-size scale $s$ (relative to $s=0$, mean$\pm$std over five seeds; Sudoku: solve rate, WMT14: BLEU). Quality decreases monotonically with $s$; the effect is strongest for translation, where the generator is most sensitive to its input latent.}
+\label{fig:dose}
+\end{figure}
+
+\subsection{Why in-loop correction fails: exposure to off-distribution inputs}
+Figure~\ref{fig:dose} shows the closed-loop dose-response: validation quality decreases monotonically with the step-size scale. On WMT14 it drops to roughly three quarters of the baseline at $s=0.25$ and to almost zero at $s=1$. The open-loop objective~\eqref{eq:loss} rewards moving $\zh^{(k)}$ towards $\zh^{(k)}_{\mathrm{GT}}$ \emph{on average}, but the generator was trained only on inputs $u_{k+1}$ obtained from exact cumulative sums of codewords (clean or corrupted). A corrected latent is a continuous point that is closer in $\ell_2$ yet not of this form, and the generator's code predictions on such inputs are much worse. This is the exposure-bias mechanism~\citep{bengio2015scheduled,ross2011dagger}, and it is the failure mode anticipated in the caveat to Proposition~\ref{prop:contraction}: the bound holds at the error rate $\sigma_k$ of the \emph{corrected} process, which is far above that of NCM.
+
+\textbf{On-manifold projection.} If exposure to non-lattice inputs is the cause, projecting the corrected latent back onto the lattice of codeword sums should remove most of the collapse. After applying $C_\omega$ at level $k$, we re-quantize the level-$k$ residual against $\mathcal{V}_k$, $\tilde r_k=\arg\min_v\|\mathrm{Down}_k(\zt^{(k)}-\zh^{(k-1)})-e_{k,v}\|_2$, and feed $\zh^{(k-1)}+\Phi_k(\Up_k(E_k(\tilde r_k)))$ to the generator, so every input is again a sum $\sum_{j\le k}\Phi_j\Up_jE_j(\cdot)$. On a 32-board Sudoku-hard check set (seed-42 correctors), projection raises the unselected in-loop corrector from \ProjNoSelOff\% to \ProjNoSelOn\% solved, against \ProjNCM\% for untouched NCM; for the validation-selected corrector it gives \ProjSelOn\% (\ProjSelOff\% without projection). This confirms the exposure-bias diagnosis. Projection still trails NCM because nearest-neighbor re-quantization of one level cannot recover the global constraint satisfaction that the generator's own codes encode.
+
+\textbf{Closed-loop co-adaptation of the generator.} The remaining option is to adapt the generator to revised trajectories. Table~\ref{tab:dagger} fine-tunes the generator on the 400 training boards with teacher-forced reference states (control), with DAgger~\citep{ross2011dagger} on a 50/50 mix of reference and on-policy rollout states labelled by greedy residual quantization of $z-\text{state}$, and with DAgger plus a jointly trained in-loop $C_\omega$. No arm beats NCM. On Sudoku-hard the three arms reach \DgTfHard, \DgDagHard{} and \DgDagCHard\% (NCM \BaseHard\%; seed-mean $t$-test $p=\DgPTfHard$, $\DgPDagHard$, $\DgPDagCHard$), and on Sudoku-medium \DgTfMedium, \DgDagMedium{} and \DgDagCMedium\% (NCM 96.00\%). On Sudoku-easy all three arms are significantly \emph{worse} (\DgTfEasy, \DgDagEasy, \DgDagCEasy\% vs.\ 99.47\%, $p\le\DgPTfEasy$), because the 100-board validation set is saturated and cannot distinguish checkpoints. Validation accuracy decreases during fine-tuning on Sudoku-hard, and selection keeps the official model for one to three of five seeds on hard and medium. A few hundred boards cannot move the decision boundaries of a 25M-parameter generator that was fitted jointly with fixed codebooks during large-scale Stage-2 training; small-sample closed-loop adaptation overfits before it removes the shift.
+
+\input{tab_dagger.tex}
+
+\input{tab_levels.tex}
+
+\subsection{Level-by-level decoding}
+\label{sec:diag}
+Table~\ref{tab:levels} and Figure~\ref{fig:levels} decode the latent after every level. Fine-drop training does make all levels decodable, but the information is concentrated in the last levels: on Sudoku-hard, cell accuracy is below 35\% up to level 7 (and no board is solved before the final level 12), and on WMT14 BLEU stays below 8 until level 6 and increases by more than 3 points at each of the last two levels. The decode-path corrector changes intermediate Sudoku cell accuracy by at most $0.57$ points (largest gains at levels 10--11 on Sudoku-easy and -medium, $\le0.22$ on Sudoku-hard) and lowers WMT14 BLEU by $0.10$--$0.13$ at levels 3--4, despite per-level scales selected on validation data. In-loop correction without selection lowers every level after the first few.
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=\textwidth]{figs/fig_levels.pdf}
+\caption{Quality of decoding at intermediate levels (seed 42, test items). Official NCM, decode-path corrector (overlapping NCM almost everywhere) and in-loop corrector without validation selection.}
+\label{fig:levels}
+\end{figure*}
+
+\subsection{Halting trade-off}
+\label{sec:halt}
+Figure~\ref{fig:halt} and the top of Table~\ref{tab:sens} sweep $\tau$ on uncorrected latents. For small $\tau$ neither rule ever fires. When a rule does fire, it fires at an intermediate level whose decoding is poor: on all 2{,}000 Sudoku-hard boards the flux rule with $\tau=0.05$ stops after \ZsFluxFiveLevHard{} levels on average and solves \ZsFluxFiveHard\% (versus \ZsBaseHard\%), and the stability rule with $\tau=0.10$ stops after \ZsStabTenLevHard{} levels and solves \ZsStabTenHard\%. Figure~\ref{fig:flux} explains this behavior. The relative flux of the \emph{reference} latents is not monotone in $k$: on Sudoku-hard it drops to $0.045$ at level 5, where cell accuracy is only about 20\%, and rises again to above 0.4 at the fine levels. A threshold that lets the rule fire at all therefore fires at the coarse dip. On WMT14 the flux is never below 0.29. This is the empirical failure of Assumption~\ref{as:geo} quantified in Section~\ref{sec:theory}.
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=\textwidth]{figs/fig_halt.pdf}
+\caption{Quality versus mean executed levels for the flux and stability halting rules on uncorrected latents ($\tau\in\{0.01,\dots,0.15\}$, test items). Star: full depth. On WMT14 no setting halts; on XSum the stability rule at $\tau=0.15$ saves 0.6 levels on average at a cost of 0.7 ROUGE-L.}
+\label{fig:halt}
+\end{figure*}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{figs/fig_flux.pdf}
+\caption{Relative latent flux $\Delta_k$~\eqref{eq:flux} along reference trajectories of the released tokenizers (64 Sudoku-hard boards, 12 WMT14 sentences). Dotted lines mark the $\tau$ grid. The flux does not decay with $k$, which violates the premise of Proposition~\ref{prop:rd}.}
+\label{fig:flux}
+\end{figure}
+
+\textbf{Token freezing.} At $\tau_{\mathrm{tok}}\le0.02$ fewer than 0.1\% of segments are ever frozen and outputs are unchanged. At $\tau_{\mathrm{tok}}=0.05$, 55\% of segments are frozen on Sudoku-hard and the solve rate drops from 86.7\% to 71.0\%; since freezing does not reduce FLOPs in the dense block-diagonal implementation, there is no setting with a favorable trade-off.
+
+\input{tab_sens.tex}
+
+\textbf{Per-sequence margin halting with batch compaction.} Batch-lockstep halting forces the whole batch to wait for its hardest item, and raw flux has a coarse dip at level~5 (Fig.~\ref{fig:flux}). We therefore also implemented per-sequence halting with true batch compaction: each sequence halts individually for $k\ge8$ when its decoder top-1 margin $\mu_{i,k}=\min_t(p_{(1)}-p_{(2)})$ exceeds $\tau_{\mathrm{margin}}$ (Step~4 of Appendix~\ref{app:p2}) and its decoding is unchanged from level $k-1$, and halted sequences are removed from the active batch. The rule never fires for $\tau_{\mathrm{margin}}\in\{0.5,0.8,0.9,0.95\}$. Across 64 boards per difficulty, the share of boards whose level-$k$ decoding equals the final one is \MarginEqMax\% for every $k\le11$, between \FlipsMin{} and \FlipsMax{} cells still change at the last level, and the median margin at level~11 is at most \MarginMedMax. Task resolution is concentrated in the final level, so no lossless early exit exists for these checkpoints at any granularity.
+
+\subsection{Sensitivity}
+Table~\ref{tab:sens} varies the step size and the corrector size for the in-loop corrector on Sudoku-hard. Without validation selection, all configurations are far below NCM, and larger correctors are less harmful (0.31M: 0.5\%, 3.04M: 58.8\% solved). We attribute this to the zero-initialized output projection: a larger model fits the identity on rollout trajectories more closely. With validation checkpoint selection, the 1.23M and 3.04M correctors reach 86.4--86.9\% solved, within 0.2 points of NCM, while the 0.31M corrector reaches only 62.5\%. Training a 1.2M-parameter corrector for 40 epochs on 500 boards takes about two minutes on the T4 with at most 4.4\,GB peak memory (all sizes), and building the training trajectories takes 16\,s.
+
+\input{fig_qual.tex}
+
+\subsection{Qualitative case study and failure modes}
+Figure~\ref{fig:qual} shows the intermediate boards of a Sudoku-hard puzzle that NCM solves and the unselected in-loop corrector does not. At level 3 the two samplers agree; after the correction perturbs the generator input at the middle levels, the later codes diverge and the final board contains errors. We observed three failure modes in total. (i) \emph{Closed-loop distribution shift}: in-loop correction moves latents towards the reference in $\ell_2$ but off the set of codeword sums the generator was trained on (Figure~\ref{fig:dose}). (ii) \emph{Premature halting at a coarse flux dip}: on Sudoku-hard the reference flux at level 5 is lower than at any fine level (Figure~\ref{fig:flux}), so any $\tau$ large enough to stop early stops at a level whose decoding solves almost no board; on Sudoku-medium the flux rule with $\tau=0.15$ stops after \ZsFluxFifteenLevMedium{} levels and solves \ZsFluxFifteenMedium\% of boards. (iii) \emph{No margin for a decode-path corrector}: because the final-level decoding is already the decoder's training input, the best decode-path correction at level $K$ is the identity.
+
+\subsection{Limitations}
+Our study has several limitations. Unconditional generation (TinyStories, LM1B, OWT) is outside the reference-based scope of this study, the validation-selected in-loop corrector was not run on XSum, and generator co-adaptation was run on Sudoku only. The splits are drawn from the official test files because no released validation inputs exist, which reduces test-set size. Only greedy decoding was studied; stochastic decoding might leave more room for correction. The corrector was trained on a few hundred to a thousand items; a larger training set, or co-training the generator on corrected latents (a DAgger-style scheme~\citep{ross2011dagger}), might remove the distribution shift but would require training the generator, which is outside the frozen-checkpoint protocol of this paper. Finally, the halting rules use simple norm and stability statistics; a learned halting head trained on the level-wise decoding quality could exploit information the flux does not capture.
+
+\section{Conclusion and Pre-Training Prescriptions}
+We asked whether predictor-corrector latent revision and adaptive early halting can improve frozen coarse-to-fine next-concept models without retraining them. Propositions~\ref{prop:contraction} and~\ref{prop:rd} give the conditions: closed-loop contraction of the corrector on the generator's support, and geometric decay of latent increments with terminal margin. Bit-exact experiments on five official checkpoints show that standard MS-RVQ pre-training violates all three requirements. The generator is brittle off the lattice of codeword sums. Fine-drop makes intermediate latents decodable but does not make increments contract. Task resolution is concentrated in the final level. Every variant we tried, including in-loop, decode-path and projected correction, batch and per-sequence halting, token freezing and DAgger co-adaptation of the generator, fails to improve on NCM under held-out selection.
+
+The propositions also indicate what pre-training would have to change. (i) \emph{Residual-decay regularization in Stage~1}: penalizing $\max\big(0,\|\Delta\zh^{(k)}_{\mathrm{GT}}\|_F-\rho\|\Delta\zh^{(k-1)}_{\mathrm{GT}}\|_F\big)$ for a target $\rho<1$ during MS-RVQ training would make Assumption~\ref{as:geo} hold by construction and give halting a non-vacuous budget, at a possible cost in final reconstruction. (ii) \emph{Continuous latent perturbation in Stage~2}: adding Gaussian perturbations of the cumulative latent to the input of every level during generator pre-training, in addition to discrete code corruption, would make the generator locally Lipschitz off the codeword lattice, which is the property a closed-loop contractive corrector needs. Both changes require retraining the released models and are left to future work; the released harness allows them to be tested under the same protocol.

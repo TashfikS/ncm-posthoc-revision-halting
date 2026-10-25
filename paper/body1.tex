@@ -1,0 +1,201 @@
+\section{Introduction}
+Autoregressive (AR) Transformers~\citep{vaswani2017attention,radford2019language,brown2020language} generate one token per network evaluation, so latency grows linearly with output length. Two families of parallel generators have been proposed to remove this bottleneck. Non-autoregressive and iterative-refinement models~\citep{gu2018nat,lee2018deterministic,ghazvininejad2019maskpredict,gu2019levenshtein} and, more recently, discrete diffusion language models (DLMs)~\citep{austin2021d3pm,li2022diffusionlm,lou2024sedd,sahoo2024mdlm,shi2024md4,gulrajani2023plaid,nie2025llada} predict many tokens per step, but they revisit the full sequence at every step and degrade quickly when the number of steps is reduced. Next-Concept Modeling (NCM)~\citep{kumbong2026ncm} takes a third route that is closer to next-scale prediction in vision~\citep{tian2024var}: a multiscale residual VQ-VAE (MS-RVQ) encodes a sequence into $K$ levels of discrete codes of increasing length, and a Transformer generates one level per forward pass, emitting all codes within a level in parallel. On the released checkpoints, NCM solves 99.4\% of easy Sudoku boards with 12 network evaluations and is 10--31$\times$ faster than diffusion baselines on text~\citep{kumbong2026ncm}.
+
+Two structural properties of NCM motivate this work. First, the latent state is \emph{purely additive}: the cumulative reconstruction after level $k$ is the sum of the upsampled code embeddings of levels $0,\dots,k$, and nothing in the sampler can revise a coarse code once it has been emitted. A wrong code at a coarse level, where a single position covers many output tokens, is broadcast over the whole sequence by linear interpolation, and finer codebooks, which were fitted to \emph{clean} residuals, are evaluated out of distribution. Second, the depth of generation is \emph{fixed}: every input pays for all $K$ levels, although the official tokenizers are trained with fine-level dropout (\texttt{fine\_drop}), a nested-dropout scheme~\citep{rippel2014nested} that makes intermediate cumulative latents decodable by the frozen decoder.
+
+These observations suggest two training-free modifications borrowed from continuous-time samplers and adaptive-computation networks: a learned \emph{corrector} that revises the cumulative latent after every predictor step, as in predictor-corrector diffusion samplers~\citep{song2021sde,zhao2023unipc}, and a \emph{halting rule} that stops generation once the latent has converged, as in adaptive computation time and early-exit Transformers~\citep{graves2016act,banino2021pondernet,elbayad2020depth,schuster2022calm}. We call the combination Adaptive Predictor-Corrector NCM (APC-NCM). The central question of this paper is: \emph{can predictor-corrector latent revision and adaptive early halting improve a frozen coarse-to-fine NCM without retraining it?} We answer it in two parts. We first derive the conditions each mechanism requires, then test these conditions on the released checkpoints under a strict protocol: official code, no access to targets at inference, hyper-parameters selected only on held-out inputs, five seeds, and paired significance tests. The answer is negative, and the analysis identifies why.
+
+Our contributions are:
+\begin{itemize}
+\item \textbf{Formulation.} We write the NCM sampler as a predictor that adds one quantized residual per level, formalize the additive-drift failure mode, and define a learned latent corrector $C_\omega$ applied in the loop, on the decode path, or with projection back onto the codebook lattice, as well as batch-level and per-sequence halting rules.
+\item \textbf{Conditions for success.} Proposition~\ref{prop:contraction} shows that additive MS-RVQ error grows linearly in the per-level code error, whereas a corrector that is $\epsilon_{\mathrm{corr}}$-accurate and contractive along the \emph{closed-loop} trajectory yields a bounded error governed by $\prod_j(1-\gamma_j)$. Proposition~\ref{prop:rd} bounds the KL cost of halting by $L_D^2\tau^2/(2(1-\rho)^2)$ under geometric increment decay $\rho<1$, and a Pinsker argument turns this into exact output preservation when the final decoding has sufficient margin.
+\item \textbf{Bit-exact controlled evaluation.} We reproduce the official baselines on a T4 (Sudoku easy/medium/hard: \OffEasy/\OffMedium/\OffHard\% solved; WMT14 De--En: \OffWmt{} BLEU; XSum: \OffXsumRL{} ROUGE-L) with a harness that wraps the official sampler unchanged, and evaluate every variant with 5 seeds, Wilcoxon and McNemar tests, and measured FLOPs, latency and memory.
+\item \textbf{Three diagnosed violations.} (i) \emph{Off-manifold exposure bias}: the generator is brittle to continuous latents that are not sums of codewords; correction lowers open-loop error but collapses closed-loop generation (Sudoku-hard \LoopVoneHard\% vs.\ \BaseHard\%), validation selection drives the step size to zero, codebook projection recovers most of the loss without beating NCM, and DAgger fine-tuning of the generator yields no significant gain. (ii) \emph{Non-decaying residual flux}: fine-drop makes intermediate latents decodable but does not make increments contract ($\hat\rho>1$ at most transitions), so Proposition~\ref{prop:rd} is vacuous. (iii) \emph{Terminal-level concentration}: task resolution occurs at level $K$, so no lossless early exit exists even per sequence.
+\item \textbf{Prescriptions.} We derive two pre-training changes that would satisfy the propositions: a residual-decay penalty in Stage~1 and continuous latent perturbations in Stage~2.
+\end{itemize}
+
+\section{Related Work}
+\textbf{Coarse-to-fine and next-scale generation.} VAR~\citep{tian2024var} generates images as a sequence of token maps of increasing resolution, each predicted in parallel; NCM~\citep{kumbong2026ncm} transfers the idea to 1-D text with a block-diagonal attention pattern and a frozen multiscale tokenizer. Earlier hierarchical latent models such as VQ-VAE-2~\citep{razavi2019vqvae2} and masked generative transformers such as MaskGIT~\citep{chang2022maskgit} also decouple global structure from detail. None of these revise an already emitted coarse code.
+
+\textbf{Diffusion and iterative-refinement language models.} Discrete diffusion~\citep{austin2021d3pm,campbell2022ctmc,lou2024sedd,sahoo2024mdlm,shi2024md4}, continuous embedding diffusion~\citep{li2022diffusionlm,gulrajani2023plaid} and large masked diffusion LMs~\citep{nie2025llada} refine the full sequence at every step. Non-autoregressive translation~\citep{gu2018nat}, iterative refinement~\citep{lee2018deterministic}, Mask-Predict~\citep{ghazvininejad2019maskpredict} and the Levenshtein Transformer~\citep{gu2019levenshtein} edit previous hypotheses, which is the discrete analogue of a corrector.
+
+\textbf{Residual vector quantization.} Multi-stage VQ~\citep{juang1982multiple} and its neural descendants~\citep{vandenoord2017vqvae,lee2022rqvae,zeghidour2022soundstream,defossez2023encodec} represent a vector as a sum of codewords chosen greedily on the running residual. Structured dropout of trailing stages~\citep{rippel2014nested,zeghidour2022soundstream} makes truncated sums decodable, which is the property the NCM \texttt{fine\_drop} auxiliary exploits.
+
+\textbf{Adaptive computation and early exit.} ACT~\citep{graves2016act}, Universal Transformers~\citep{dehghani2019universal} and PonderNet~\citep{banino2021pondernet} learn how many recurrent steps to spend; BranchyNet~\citep{teerapittayanon2016branchynet}, DeeBERT~\citep{xin2020deebert}, depth-adaptive Transformers~\citep{elbayad2020depth} and CALM~\citep{schuster2022calm} exit from intermediate layers when a confidence or state-change criterion is met. Our halting rules are of the state-change type, applied to generation levels rather than layers.
+
+\textbf{Predictor-corrector samplers and exposure bias.} Predictor-corrector schemes for score-based diffusion~\citep{ho2020ddpm,song2021sde} interleave a numerical integration step with Langevin correction; DDIM~\citep{song2021ddim}, DPM-Solver~\citep{lu2022dpmsolver} and UniPC~\citep{zhao2023unipc} design higher-order predictor and corrector updates. In sequence models, the mismatch between training on clean prefixes and testing on model-generated ones is known as exposure bias, studied through scheduled sampling~\citep{bengio2015scheduled} and DAgger~\citep{ross2011dagger}. Our negative result for in-loop correction is an instance of this mismatch.
+
+\textbf{Constraint reasoning benchmarks.} Sudoku has been used to probe relational and constraint reasoning in neural networks~\citep{palm2018rrn,wang2019satnet}. We follow NCM and do not inject any rule-based constraint into the sampler.
+
+\section{Preliminaries: Next-Concept Modeling}
+\label{sec:prelim}
+\subsection{Stage 1: multiscale residual VQ-VAE}
+Let $x\in\mathcal{X}^{T}$ be a pre-tokenized sequence and $z=E_\theta(x)\in\mathbb{R}^{L\times d}$ the continuous encoder output ($L=T$ in all released models since the compression factor is 1). The MS-RVQ uses $K$ levels with lengths $\ell_0<\dots<\ell_{K-1}=L$ and codebooks $\mathcal{V}_k=\{e_{k,v}\}_{v=1}^{|\mathcal{V}_k|}\subset\mathbb{R}^d$. With $\mathrm{Down}_k$ the area interpolation to $\ell_k$ positions (a learned strided convolution at $k=0$) and $\Up_k$ the linear interpolation back to $L$ (a learned transposed convolution at $k=0$), the encoder computes for $k=0,\dots,K-1$
+\begin{align}
+r^\ast_{k} &= \argmax_{v}\; -\big\|\mathrm{Down}_k\big(z-\zh^{(k-1)}_{\mathrm{GT}}\big)-e_{k,v}\big\|_2^2, \label{eq:enc}\\
+\zh^{(k)}_{\mathrm{GT}} &= \zh^{(k-1)}_{\mathrm{GT}} + \Phi_k\!\big(\Up_k(E_k(r^\ast_k))\big), \label{eq:cum}
+\end{align}
+with $\zh^{(-1)}_{\mathrm{GT}}=0$, where $E_k(\cdot)$ looks up codewords and $\Phi_k(h)=(1-\varrho)h+\varrho\,\mathrm{Conv1d}_k(h)$ with $\varrho=0.5$ is the residual refinement (\texttt{quant\_resi}). The argmin is taken row-wise and the arg-max form in~\eqref{eq:enc} is used only for notational uniformity. In the code, \eqref{eq:enc}--\eqref{eq:cum} are \texttt{MultiscaleResidualVectorQuantizer.z\_to\_idx}, which also returns the list $(\zh^{(0)}_{\mathrm{GT}},\dots,\zh^{(K-1)}_{\mathrm{GT}})$ when \texttt{return\_zhats=True}. The decoder $D_\psi$ maps $\zh^{(K-1)}$ to per-position logits.
+
+\textbf{Fine-level dropout.} During tokenizer training, with probability $p_{\mathrm{fd}}$ ($0.5$ for Sudoku, WMT14, XSum and TinyStories) the reconstruction passed to $D_\psi$ is truncated to $\zh^{(J)}$ with $J\sim\mathcal{U}\{k_{\min}-1,\dots,K-2\}$. The decoder is therefore trained on the mixture
+\begin{equation}
+\pi_{\mathrm{fd}}(J) = (1-p_{\mathrm{fd}})\,\delta_{K-1}(J) + \tfrac{p_{\mathrm{fd}}}{K-k_{\min}}\textstyle\sum_{j=k_{\min}-1}^{K-2}\delta_j(J), \label{eq:finedrop}
+\end{equation}
+so intermediate cumulative latents lie on the decoder's training support.
+
+\subsection{Stage 2: next-concept Transformer}
+The generator $G_\phi$ is a Transformer with a prefix of $P$ conditioning tokens (puzzle, source sentence or article) and block-diagonal attention and rotary position embeddings~\citep{su2024roformer}: level $k+1$ attends to the prefix and to its own $\ell_{k+1}$ positions. At generation level $k$ the official loop computes
+\begin{align}
+\zh^{(k)} &= \zh^{(k-1)} + \Phi_k\big(\Up_k(E_k(\hat r_k))\big), \label{eq:pred}\\
+u_{k+1} &= \mathrm{Down}_{k+1}\big(\zh^{(k)}\big)\in\mathbb{R}^{\ell_{k+1}\times d},\label{eq:down}\\
+\hat r_{k+1} &= \argmax\; G_\phi\big(u_{k+1},\mathrm{prefix}\big)\in\{1,\dots,|\mathcal{V}_{k+1}|\}^{\ell_{k+1}}, \label{eq:gen}
+\end{align}
+which corresponds to \texttt{get\_next\_autoregressive\_input} in \texttt{models/quant.py} and the level loop of \texttt{NextConceptTransformer.generate} in \texttt{models/next\_concept.py}. All released configurations decode greedily (temperature 0 or top-$k=1$); XSum additionally applies the official frequency penalty when reading tokens from $D_\psi$. One forward pass of $G_\phi$ is spent per level, and the output is $D_\psi(\zh^{(K-1)})$.
+
+\section{Proposed Methodology: APC-NCM}
+\subsection{Additive drift}
+Define the per-level code error $\epsilon_k=\Phi_k\Up_k\big(E_k(\hat r_k)-E_k(r^\ast_k)\big)$, where $r^\ast_k$ are the codes the tokenizer assigns to the reference output. Subtracting~\eqref{eq:cum} from~\eqref{eq:pred} gives the drift recursion
+\begin{equation}
+e^{(k)}\triangleq\zh^{(k)}-\zh^{(k)}_{\mathrm{GT}} = e^{(k-1)}+\epsilon_k=\sum_{j=0}^{k}\epsilon_j. \label{eq:drift}
+\end{equation}
+Because $\Up_j$ is a linear interpolation from $\ell_j\ll L$ positions, a single wrong code at a coarse level changes $\lceil L/\ell_j\rceil$ output positions. Moreover, $\hat r_{k+1}$ is computed from $u_{k+1}$, which contains $e^{(k)}$, while the generator and codebook $\mathcal{V}_{k+1}$ were trained on $u_{k+1}$ built from clean residuals, so~\eqref{eq:drift} is never contracted by the sampler itself.
+
+\subsection{Learned latent corrector $C_\omega$}
+We insert a learned revision after the predictor update~\eqref{eq:pred}:
+\begin{equation}
+\zt^{(k)}=\zh^{(k)}_{\mathrm{pred}}-\eta_k\,C_\omega\big(\zh^{(k)}_{\mathrm{pred}},h_{\mathrm{prefix}},k\big), \label{eq:corr}
+\end{equation}
+with $\eta_k=s_k\,\sigma(\beta_k)\in[0,1]$, where $\sigma$ is the logistic function, $\beta_k$ a learnable logit and $s_k\in\{0,0.25,0.5,1\}$ a scale chosen on validation data (Section~\ref{sec:select}). $h_{\mathrm{prefix}}\in\mathbb{R}^{P\times d}$ is the frozen raw-token prefix embedding that $G_\phi$ itself uses (\texttt{raw\_token\_prefix}), so $C_\omega$ sees exactly the information available to the generator. The network normalizes its input by its RMS $\varsigma=\|\zh\|_F/\sqrt{Ld}$, projects to width $h$, adds a level embedding, applies two depthwise-separable 1-D convolution blocks (kernel 5)~\citep{chollet2017xception}, one cross-attention block over $h_{\mathrm{prefix}}$ (4 heads) and an MLP, and maps back to $\mathbb{R}^{L\times d}$ through a zero-initialized projection whose output is rescaled by $\varsigma$. Zero initialization makes~\eqref{eq:corr} the identity at the start of training. Widths $h\in\{140,316,516\}$ give $0.31$M, $1.23$M and $3.04$M parameters on Sudoku ($d=256$).
+
+\textbf{Two insertion points.} (i) \emph{In-loop} (the original proposal): $\zt^{(k)}$ replaces $\zh^{(k)}$ in~\eqref{eq:down}, so it changes all later generator inputs. (ii) \emph{Decode-path}: the generator continues from the uncorrected $\zh^{(k)}$, and $\zt^{(k)}$ is used only when a latent is decoded (at a halting level or at the final level). The decode-path variant cannot shift the generator's input distribution; it is trained for all $K$ levels.
+
+\textbf{Training objective.} Generator and tokenizer are frozen. For a training input with reference $y$, the targets $\zh^{(k)}_{\mathrm{GT}}$ come from \texttt{z\_to\_idx}$(E_\theta(y))$. Predicted trajectories $\zh^{(k)}_{\mathrm{pred}}$ come from two sources: (a) free-running greedy rollouts of the official generator on the training inputs (the inference-time distribution), and (b) NCM-style uniform code corruption with level 0 preserved, where every code is replaced by a uniformly random code with probability $u\sim\mathcal{U}(0,1)$ drawn per sequence. We minimize
+\begin{align}
+\mathcal{L}_{\mathrm{APC}}(\omega)=\sum_{k}\lambda_k\Big(&\tfrac{1}{Ld}\big\|\zt^{(k)}-\zh^{(k)}_{\mathrm{GT}}\big\|_F^2\nonumber\\
+&+\alpha\,\KL\big(D_\psi(\zh^{(k)}_{\mathrm{GT}})\,\big\|\,D_\psi(\zt^{(k)})\big)\Big), \label{eq:loss}
+\end{align}
+with $\lambda_k\propto 1/\mathbb{E}\|\zh^{(k)}_{\mathrm{GT}}\|^2$ normalized to sum to the number of levels, $\alpha=0.1$, and the KL averaged over positions. For decoders with large vocabularies (151{,}936 for the Qwen3 tokenizer used by WMT14, 50{,}257 for GPT-2 on XSum) the KL is evaluated on a random subset of (sequence, level) pairs per step and rescaled, which keeps the estimator unbiased. Rollouts are drawn with probability $0.75$ and corrupted trajectories otherwise. Target labels enter only~\eqref{eq:loss}; at inference $C_\omega$ receives $\zh_{\mathrm{pred}}$, the prefix and $k$.
+
+\subsection{Rate-distortion Cauchy halting and token freezing}
+For $k\ge k_{\min}$ define the normalized latent flux and the decoder stability
+\begin{align}
+\Delta_k&=\frac{\|\zt^{(k)}-\zt^{(k-1)}\|_F}{\|\zt^{(k-1)}\|_F+\epsilon},\label{eq:flux}\\
+S_k&=\frac{1}{L}\sum_{t=1}^{L}\mathbb{I}\big[y^{(k)}_t=y^{(k-1)}_t\big],\quad y^{(k)}_t=\argmax D_\psi(\zt^{(k)})_t.\label{eq:stab}
+\end{align}
+A batch halts at the first $k^\ast\le K-2$ at which every sequence satisfies $\Delta_{k}<\tau$ (flux rule) or $1-S_k<\tau$ (stability rule); the output is $D_\psi(\zt^{(k^\ast)})$ and levels $k^\ast+1,\dots,K-1$ are never executed. Halting is applied per batch because only then is generator computation actually saved by the parallel implementation. For token freezing we compute a local flux $\delta_{k,t}=\|\zt^{(k)}_t-\zt^{(k-1)}_t\|_2/(\|\zt^{(k-1)}_t\|_2+\epsilon)$, area-pool it to the $\ell_{k+1}$ segments of the next level, and freeze segments with $\delta<\tau_{\mathrm{tok}}$: their latent rows are carried forward unchanged at every later level. Freezing does not reduce FLOPs in the dense block-diagonal implementation; we evaluate it for its effect on quality.
+
+\subsection{Hyper-parameter selection without test leakage}
+\label{sec:select}
+All choices are made on the first $N_{\mathrm{tr}}$ items of each official test file, which are disjoint from the reported evaluation items. Within these, $80\%$ are used for gradient steps and $20\%$ as a validation set. (i) The training checkpoint with the lowest validation loss~\eqref{eq:loss} on rollout trajectories is kept, including the identity at initialization (epoch $-1$). (ii) The step-size scale $s$ is chosen from $\{0,0.25,0.5,1\}$ by \emph{closed-loop} validation quality (solve rate, BLEU or ROUGE-L); for the decode-path variant a separate $s_k$ is chosen per level using the level-$k$ decoding quality (cell accuracy for Sudoku). Ties are broken towards the smaller scale. (iii) The halting rule and $\tau$ are chosen on the same $N_{\mathrm{tr}}$ items as the setting with the fewest mean levels whose quality is within $0.5$ points of the full-depth model. Run 1 of our study (``in-loop, no selection'') omits (i) and (ii); it is reported as an ablation.
+
+\begin{figure*}[t]
+\centering
+\begin{tikzpicture}[font=\footnotesize, node distance=4mm and 6mm,
+ box/.style={draw, rounded corners=2pt, minimum height=6mm, align=center, fill=white},
+ gen/.style={box, fill=blue!8}, cor/.style={box, fill=orange!18}, dec/.style={box, fill=green!10}, hal/.style={box, fill=red!8, diamond, aspect=2.2, inner sep=1pt},
+ >={Stealth[length=2mm]}]
+\node[font=\bfseries\footnotesize] (tA) at (0,0.9) {(a) Baseline NCM};
+\node[gen] (g0) at (0,0) {$G_\phi$\\level $k$};
+\node[box, right=of g0] (p0) {$\zh^{(k)}=\zh^{(k-1)}$\\$+\Phi_k\Up_k E_k(\hat r_k)$};
+\node[box, right=of p0] (d0) {$\mathrm{Down}_{k+1}$};
+\node[gen, right=of d0] (g1) {$G_\phi$\\level $k{+}1$};
+\node[dec, right=12mm of g1] (o0) {$D_\psi(\zh^{(K-1)})$\\after all $K$ levels};
+\draw[->] (g0) -- node[above]{$\hat r_k$} (p0); \draw[->] (p0) -- (d0); \draw[->] (d0) -- node[above]{$u_{k+1}$} (g1); \draw[->, dashed] (g1) -- node[above]{$\cdots$} (o0);
+\node[font=\bfseries\footnotesize] (tB) at (0,-1.35) {(b) APC-NCM};
+\node[gen] (G0) at (0,-2.3) {$G_\phi$\\level $k$};
+\node[box, right=of G0] (P0) {predictor\\ \eqref{eq:pred}};
+\node[cor, right=of P0] (C0) {corrector $C_\omega$\\ \eqref{eq:corr}};
+\node[hal, right=of C0] (H0) {$\Delta_k{<}\tau$?};
+\node[box, right=of H0] (D0) {$\mathrm{Down}_{k+1}$};
+\node[gen, right=of D0] (G1) {$G_\phi$\\level $k{+}1$};
+\node[dec, below=6mm of H0] (O0) {$D_\psi(\zt^{(k^\ast)})$};
+\node[box, above=3mm of C0, fill=gray!10] (pf) {$h_{\mathrm{prefix}}$, level $k$};
+\draw[->] (G0) -- node[above]{$\hat r_k$} (P0); \draw[->] (P0) -- node[above]{$\zh^{(k)}_{\mathrm{pred}}$} (C0); \draw[->] (C0) -- node[above]{$\zt^{(k)}$} (H0);
+\draw[->] (H0) -- node[above]{no} (D0); \draw[->] (D0) -- (G1); \draw[->] (H0) -- node[right]{yes: halt} (O0); \draw[->] (pf) -- (C0);
+\draw[->, densely dotted, orange!70!black] (P0.south) to[out=-40,in=-140] node[below=9mm, pos=0.5, font=\scriptsize, text=orange!70!black]{decode-path variant: $u_{k+1}$ bypasses $C_\omega$} (D0.south);
+\end{tikzpicture}
+\caption{Baseline NCM (a) adds one quantized residual per level and always runs all $K$ levels. APC-NCM (b) revises the cumulative latent with a learned corrector and may halt once the latent flux (or decoder instability) falls below $\tau$. In the in-loop variant the corrected latent feeds the next generator level; in the decode-path variant (dotted) the generator continues from the uncorrected latent and $C_\omega$ acts only on decoded latents.}
+\label{fig:arch}
+\end{figure*}
+
+\begin{algorithm}[t]
+\caption{APC-NCM training and inference}
+\label{alg:apc}
+\begin{algorithmic}[1]
+\Require frozen $E_\theta,D_\psi,\{\mathcal{V}_k,\Phi_k\}$, $G_\phi$; training inputs/references $\{(c_i,y_i)\}_{i\le N_{\mathrm{tr}}}$
+\State \textbf{Training}
+\For{$i=1,\dots,N_{\mathrm{tr}}$}
+  \State $(\zh^{(k)}_{\mathrm{GT}})_k\gets$ \texttt{z\_to\_idx}$(E_\theta(y_i))$;\quad $(\zh^{(k)}_{\mathrm{roll}})_k\gets$ greedy rollout of $G_\phi$ on $c_i$
+  \State $(\zh^{(k)}_{\mathrm{cor}})_k\gets$ cumulative latents of codes corrupted at rate $u\sim\mathcal{U}(0,1)$, level 0 kept
+\EndFor
+\State minimize~\eqref{eq:loss} with AdamW, one-cycle LR; keep best validation epoch (identity included)
+\State choose $s$ (or $s_k$) by closed-loop validation quality; choose rule and $\tau$ on $\{c_i\}$
+\State \textbf{Inference} on a batch of prefixes $c$
+\State $\zh^{(-1)}\gets 0$; sample $\hat r_0$ with $G_\phi$
+\For{$k=0,\dots,K-2$}
+  \State $\zh^{(k)}\gets\zh^{(k-1)}+\Phi_k\Up_kE_k(\hat r_k)$ \Comment{predictor}
+  \State $\zt^{(k)}\gets\zh^{(k)}-\eta_kC_\omega(\zh^{(k)},h_{\mathrm{prefix}},k)$ \Comment{corrector}
+  \If{freezing} copy rows of $\zh^{(k-1)}$ into frozen segments \EndIf
+  \If{$k\ge k_{\min}$ \textbf{and} halting criterion holds for all sequences} \Return $D_\psi(\zt^{(k)})$ \EndIf
+  \State $u_{k+1}\gets\mathrm{Down}_{k+1}(\zt^{(k)})$ (in-loop) or $\mathrm{Down}_{k+1}(\zh^{(k)})$ (decode-path)
+  \State $\hat r_{k+1}\gets\argmax G_\phi(u_{k+1},c)$
+\EndFor
+\State \Return $D_\psi\big(\zh^{(K-2)}{+}\Phi_{K-1}E_{K-1}(\hat r_{K-1})\big)$, corrected at level $K{-}1$ in the decode-path variant
+\end{algorithmic}
+\end{algorithm}
+
+\section{Theoretical Analysis}
+\label{sec:theory}
+We analyze the drift recursion~\eqref{eq:drift} and the halting error. Norms are Frobenius norms on $\mathbb{R}^{L\times d}$, and expectations are over inputs and sampled codes. We index generation levels $k=1,\dots,K$ in this section for readability (level $0$ in code is $k=1$ here).
+
+\begin{assumption}[Lipschitz upsampling]\label{as:lip}
+$A_k\triangleq\Phi_k\circ\Up_k$ is linear with $\|A_k\|_{\mathrm{op}}\le L_p$.
+\end{assumption}
+\begin{assumption}[Drift coherence]\label{as:coh}
+There is $c_0\in(0,1]$ such that $\langle e^{(k-1)},\epsilon_k\rangle\ge c_0\,\|e^{(k-1)}\|\,\|\epsilon_k\|$ almost surely, and $\sigma_k\triangleq\mathbb{E}\|\epsilon_k\|>0$.
+\end{assumption}
+\begin{assumption}[$\epsilon_{\mathrm{corr}}$-accurate contractive corrector]\label{as:corr}
+For every $k$ and every $z$ with $\|z-\zh^{(k)}_{\mathrm{GT}}\|\le R$, the corrected point $\mathcal{C}_k(z)=z-\eta_kC_\omega(z,h_{\mathrm{prefix}},k)$ satisfies $\|\mathcal{C}_k(z)-\zh^{(k)}_{\mathrm{GT}}\|\le(1-\gamma_k)\|z-\zh^{(k)}_{\mathrm{GT}}\|+\epsilon_{\mathrm{corr}}$ with $\gamma_k\in[0,1)$, and all iterates remain in the ball of radius $R$.
+\end{assumption}
+
+Assumption~\ref{as:lip} holds for the released tokenizers because linear interpolation and $\Phi_k$ are linear maps; $L_p\le(1-\varrho)+\varrho\|\mathrm{Conv1d}_k\|_{\mathrm{op}}$. Assumption~\ref{as:coh} formalizes the statement that finer codebooks, fitted to clean residuals, do not cancel drift; it is the worst case and is not guaranteed in practice. Assumption~\ref{as:corr} is the contraction property that the objective~\eqref{eq:loss} aims to induce.
+
+\begin{proposition}[Lyapunov contraction under predictor-corrector revision]\label{prop:contraction}
+Under Assumptions~\ref{as:lip}--\ref{as:coh}, purely additive MS-RVQ generation satisfies
+\begin{equation}
+\mathbb{E}\big\|\zh^{(K)}-\zh^{(K)}_{\mathrm{GT}}\big\|\ \ge\ c_0\sum_{k=1}^{K}\sigma_k=\Omega\Big(\sum_{k=1}^{K}\sigma_k\Big), \label{eq:lower}
+\end{equation}
+and, if $\#\{t:\hat r_{k,t}\neq r^\ast_{k,t}\}\le m_k$, then $\sigma_k\le L_p\,m_k\,\mathrm{diam}(\mathcal{V}_k)$. Under Assumption~\ref{as:corr}, with the in-loop update $\zt^{(k)}=\mathcal{C}_k\big(\zt^{(k-1)}+A_kE_k(\hat r_k)\big)$ and $\tilde e^{(k)}=\zt^{(k)}-\zh^{(k)}_{\mathrm{GT}}$, the Lyapunov function $V_k=\|\tilde e^{(k)}\|$ obeys $V_k\le(1-\gamma_k)(V_{k-1}+\|\epsilon_k\|)+\epsilon_{\mathrm{corr}}$, hence
+\begin{equation}
+\mathbb{E}V_K\le\sum_{k=1}^{K}\Big(\prod_{j=k}^{K}(1-\gamma_j)\Big)\sigma_k+\epsilon_{\mathrm{corr}}\sum_{k=1}^{K}\prod_{j=k+1}^{K}(1-\gamma_j). \label{eq:upper}
+\end{equation}
+If $\gamma_j\ge\gamma>0$ and $\sigma_k\le\bar\sigma$, then $\mathbb{E}V_K\le(\bar\sigma(1-\gamma)+\epsilon_{\mathrm{corr}})/\gamma$ uniformly in $K$, whereas~\eqref{eq:lower} grows linearly in $K$.
+\end{proposition}
+\begin{proof}[Proof sketch]
+For the lower bound, expand $\|e^{(k)}\|^2=\|e^{(k-1)}\|^2+2\langle e^{(k-1)},\epsilon_k\rangle+\|\epsilon_k\|^2\ge(\|e^{(k-1)}\|+c_0\|\epsilon_k\|)^2$, where the inequality uses Assumption~\ref{as:coh} and $c_0^2\le1$. Taking square roots and telescoping gives $\|e^{(K)}\|\ge c_0\sum_k\|\epsilon_k\|$; take expectations. The bound on $\sigma_k$ follows from linearity of $A_k$: $\|\epsilon_k\|\le L_p\|E_k(\hat r_k)-E_k(r_k^\ast)\|\le L_p\,m_k\,\mathrm{diam}(\mathcal{V}_k)$. For the upper bound, $\tilde e^{(k)}=\mathcal{C}_k(\zt^{(k-1)}+A_kE_k(\hat r_k))-\zh^{(k)}_{\mathrm{GT}}$ and $\zt^{(k-1)}+A_kE_k(\hat r_k)-\zh^{(k)}_{\mathrm{GT}}=\tilde e^{(k-1)}+\epsilon_k$ by~\eqref{eq:cum}; Assumption~\ref{as:corr} and the triangle inequality give the one-step bound, which is unrolled by induction (Appendix~\ref{app:p1}). The uniform bound sums a geometric series.
+\end{proof}
+
+\begin{assumption}[Decoder regularity on the fine-drop support]\label{as:dec}
+The logit map $f=D_\psi$ is $L_D$-Lipschitz, $\|f(a)-f(b)\|_F\le L_D\|a-b\|_F$, on the segment between $\zt^{(k^\ast)}$ and $\zt^{(K)}$, which lies in the support of the fine-drop training distribution~\eqref{eq:finedrop}.
+\end{assumption}
+\begin{assumption}[Geometric decay of increments]\label{as:geo}
+The increments $\Delta\zt^{(j)}=\zt^{(j)}-\zt^{(j-1)}$ satisfy $\|\Delta\zt^{(j+1)}\|\le\rho\|\Delta\zt^{(j)}\|$ for $j\ge k^\ast$, with $\rho\in(0,1)$.
+\end{assumption}
+
+\begin{proposition}[Rate-distortion bound for Cauchy halting]\label{prop:rd}
+Suppose halting occurs at $k^\ast$ with $\|\Delta\zt^{(k^\ast)}\|\le\tau$ (absolute flux, i.e., $\Delta_{k^\ast}\|\zt^{(k^\ast-1)}\|\le\tau$). Under Assumptions~\ref{as:dec}--\ref{as:geo}, $\|\zt^{(K)}-\zt^{(k^\ast)}\|\le\sum_{j=k^\ast+1}^{K}\|\Delta\zt^{(j)}\|\le\rho\tau/(1-\rho)\le\tau/(1-\rho)$, and with $p_\psi(\cdot\mid z)=\mathrm{softmax}(f(z))$ applied per position,
+\begin{equation}
+\sum_{t=1}^{L}\KL\big(p_\psi(y_t\mid\zt^{(K)})\,\big\|\,p_\psi(y_t\mid\zt^{(k^\ast)})\big)\le\frac{L_D^2\tau^2}{2(1-\rho)^2}. \label{eq:rd}
+\end{equation}
+\end{proposition}
+\begin{proof}[Proof sketch]
+The first chain is the triangle inequality and a geometric series. For two logit vectors $a,b\in\mathbb{R}^{V}$, $\KL(\mathrm{softmax}(a)\|\mathrm{softmax}(b))$ is the Bregman divergence of the log-partition function $\mathrm{lse}$, whose Hessian $\mathrm{diag}(p)-pp^\top$ has quadratic form $\mathrm{Var}_p(h)\le\|h\|_\infty^2\le\|h\|_2^2$; Taylor's theorem with integral remainder yields $\KL\le\frac12\|a-b\|_2^2$. Summing over positions and applying Assumption~\ref{as:dec} gives~\eqref{eq:rd} (Appendix~\ref{app:p2}).
+\end{proof}
+
+\begin{remark}[Role of fine-drop]
+Proposition~\ref{prop:rd} compares two decoder outputs; it does not by itself say that $D_\psi(\zt^{(k^\ast)})$ is a sensible output. Fine-drop training places $\zt^{(k^\ast)}$ on the decoder's training support, so the Lipschitz constant in Assumption~\ref{as:dec} is a local property of a region the decoder was fitted on rather than an extrapolation. If $D_\psi(\zt^{(K)})$ is correct with margin larger than $\sqrt{2\cdot\mathrm{RHS}}$ in total variation at every position (Pinsker's inequality~\citep{pinsker1964,cover2006elements}), the halted argmax output equals the full-depth one.
+\end{remark}
+
+\begin{remark}[Empirical status of the assumptions]
+We estimated the constants on reference trajectories of the released tokenizers (Section~\ref{sec:diag}). The empirical decoder ratio $\hat L_D^2=\max\KL/(\frac12\|\zh^{(K)}-\zh^{(k)}\|^2)$ is small ($\le\LDSud$ on Sudoku-hard and $\le\LDWmt$ on WMT14), so Assumption~\ref{as:dec} is benign. Assumption~\ref{as:geo}, however, is violated: the median ratio $\|\Delta\zh^{(j+1)}\|/\|\Delta\zh^{(j)}\|$ exceeds 1 at \RhoGtOneSud{} of 10 Sudoku-hard level pairs and \RhoGtOneWmt{} of 9 WMT14 pairs, and the relative flux at the second-to-last level is \FluxLastSud{} (Sudoku-hard) and \FluxLastWmt{} (WMT14), far above any useful $\tau$. Proposition~\ref{prop:rd} is therefore vacuous for these models, which is consistent with the empirical halting results.
+\end{remark}

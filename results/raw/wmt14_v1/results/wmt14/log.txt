@@ -1,0 +1,149 @@
+OFFICIAL: /usr/bin/python3 /tmp/ncm_workspace/ncm/evaluate.py --config /tmp/ncm_workspace/ncm/config/eval/wmt14.yaml --checkpoint-dir /tmp/ncm_workspace/ck/wmt14 --data-dir /tmp/ncm_workspace/data/wmt14 --out /kaggle/working/results/wmt14/official --gpus 0
+[evaluate] 1 shard(s) on GPU(s) 0 -> /kaggle/working/results/wmt14/official/
+
+merged 1 shards -> 3003 wmt14 outputs
+
+    BLEU  BLEU(lc)    chrF  len ratio
+   21.72     22.61   49.56      0.937
+
+BLEU|True = 21.72 58.9/30.5/17.1/9.7 (BP = 0.928 ratio = 0.930 hyp_len = 62654 ref_len = 67337)
+
+
+levels [1, 4, 8, 14, 20, 26, 32, 40, 48, 56, 64] d 384 gen params 119963904
+== baseline (test)
+{'scores': {'sbleu': 20.897295036789952, 'bleu': 22.34909066659752}, 'levels': 11.0, 'ms_per_batch': 6204.184754062502, 'ms_per_batch_std': 776.0050233878459, 'total_s': 198.53391213000006, 'peak_mb': 8196.27392578125, 'frozen_frac': 0.0, 'per_level': [{'sbleu': 2.825625032230703, 'bleu': 0.4336172332116903}, {'sbleu': 3.5016209653318575, 'bleu': 0.8615670511298328}, {'sbleu': 4.2989126285880035, 'bleu': 1.5578127061258156}, {'sbleu': 5.467341133422213, 'bleu': 2.8984752329194774}, {'sbleu': 7.370387783450243, 'bleu': 5.036643374944839}, {'sbleu': 9.363435635008354, 'bleu': 7.611022182792861}, {'sbleu': 12.918353918239092, 'bleu': 12.252331894035672}, {'sbleu': 15.238540455666646, 'bleu': 15.354207320849042}, {'sbleu': 17.08065166181509, 'bleu': 17.70954591749614}, {'sbleu': 18.34282852054268, 'bleu': 19.185880927867547}, {'sbleu': 20.897295036789952, 'bleu': 22.34909066659752}]}
+flops/sample by levels {2: 41919381504.0, 3: 60096184320.0, 4: 79380824064.0, 5: 99775954944.0, 6: 121284231168.0, 7: 143908306944.0, 8: 168024244224.0, 9: 193636761600.0, 10: 220750577664.0, 11: 249370411008.0}
+== tau sweep on TRAIN split (baseline, flux & stability)
+flux 0.01 {'sbleu': 19.921954391185675, 'bleu': 20.484865697737078} 11.0
+flux 0.03 {'sbleu': 19.921954391185675, 'bleu': 20.484865697737078} 11.0
+flux 0.05 {'sbleu': 19.921954391185675, 'bleu': 20.484865697737078} 11.0
+flux 0.1 {'sbleu': 19.921954391185675, 'bleu': 20.484865697737078} 11.0
+flux 0.15 {'sbleu': 19.921954391185675, 'bleu': 20.484865697737078} 11.0
+stab 0.01 {'sbleu': 19.921954391185675, 'bleu': 20.484865697737078} 11.0
+stab 0.03 {'sbleu': 19.921954391185675, 'bleu': 20.484865697737078} 11.0
+stab 0.05 {'sbleu': 19.921954391185675, 'bleu': 20.484865697737078} 11.0
+stab 0.1 {'sbleu': 19.921954391185675, 'bleu': 20.484865697737078} 11.0
+stab 0.15 {'sbleu': 19.921954391185675, 'bleu': 20.484865697737078} 11.0
+selected halting {'mode': 'flux', 'tau': 0.01, 'kmin': 2}
+== halting-only (test)
+{'scores': {'sbleu': 20.897295036789952, 'bleu': 22.34909066659752}, 'levels': 11.0, 'ms_per_batch': 6195.60258925, 'ms_per_batch_std': 746.8674602359577, 'total_s': 198.259282856, 'peak_mb': 7105.591796875, 'frozen_frac': 0.0}
+== test tau sweep, baseline
+== building corrector training set from TRAIN split rollouts + code corruption
+train set {'prefix': (1000, 96), 'y': (1000, 64), 'zg': (1000, 10, 64, 384), 'zr': (1000, 10, 64, 384), 'zc': (2, 1000, 10, 64, 384)} 104.0s
+== seed 42
+  [C seed42 h292] ep0 train 20.4644 val 2.6802 mse 1.2379 (uncorr 1.2349) eta 0.500
+  [C seed42 h292] ep1 train 22.1701 val 2.5961 mse 1.2445 (uncorr 1.2349) eta 0.500
+  [C seed42 h292] ep2 train 15.7555 val 2.7651 mse 1.1980 (uncorr 1.2349) eta 0.501
+  [C seed42 h292] ep3 train 20.7721 val 2.4001 mse 1.1403 (uncorr 1.2349) eta 0.502
+  [C seed42 h292] ep4 train 16.7306 val 2.2251 mse 1.0786 (uncorr 1.2349) eta 0.504
+  [C seed42 h292] ep5 train 18.4874 val 2.0621 mse 1.0319 (uncorr 1.2349) eta 0.506
+  [C seed42 h292] ep6 train 17.5050 val 1.8801 mse 0.9984 (uncorr 1.2349) eta 0.508
+  [C seed42 h292] ep7 train 18.1681 val 2.1140 mse 0.9852 (uncorr 1.2349) eta 0.510
+  [C seed42 h292] ep8 train 15.4076 val 2.0927 mse 0.9731 (uncorr 1.2349) eta 0.511
+  [C seed42 h292] ep9 train 12.2844 val 2.0667 mse 0.9505 (uncorr 1.2349) eta 0.512
+  [C seed42 h292] ep10 train 11.8270 val 1.8386 mse 0.9428 (uncorr 1.2349) eta 0.513
+  [C seed42 h292] ep11 train 12.2974 val 2.0655 mse 0.9378 (uncorr 1.2349) eta 0.514
+  [C seed42 h292] ep12 train 13.1435 val 1.9765 mse 0.9316 (uncorr 1.2349) eta 0.515
+  [C seed42 h292] ep13 train 11.8434 val 1.9361 mse 0.9336 (uncorr 1.2349) eta 0.515
+  [C seed42 h292] ep14 train 13.4690 val 1.9393 mse 0.9249 (uncorr 1.2349) eta 0.516
+  [C seed42 h292] ep15 train 8.1909 val 1.8762 mse 0.9245 (uncorr 1.2349) eta 0.516
+  [C seed42 h292] ep16 train 11.9680 val 1.9429 mse 0.9224 (uncorr 1.2349) eta 0.516
+  [C seed42 h292] ep17 train 10.1272 val 2.0925 mse 0.9217 (uncorr 1.2349) eta 0.516
+  [C seed42 h292] ep18 train 13.0912 val 2.0889 mse 0.9208 (uncorr 1.2349) eta 0.516
+  [C seed42 h292] ep19 train 11.9025 val 2.1267 mse 0.9207 (uncorr 1.2349) eta 0.516
+selected halting (APC) {'mode': 'stab', 'tau': 0.15, 'kmin': 2}
+PC 42 {'sbleu': 2.815621706437102, 'bleu': 0.0404034398339266} 11.0
+FULL 42 {'sbleu': 1.406346322863876, 'bleu': 0.0006130922354989347} 10.373939091362956
+== seed 0
+  [C seed0 h292] ep0 train 25.2072 val 3.1090 mse 1.3693 (uncorr 1.3650) eta 0.500
+  [C seed0 h292] ep1 train 22.3801 val 3.0059 mse 1.3693 (uncorr 1.3650) eta 0.501
+  [C seed0 h292] ep2 train 18.8945 val 3.1126 mse 1.3209 (uncorr 1.3650) eta 0.501
+  [C seed0 h292] ep3 train 16.3628 val 2.5111 mse 1.2594 (uncorr 1.3650) eta 0.502
+  [C seed0 h292] ep4 train 20.7519 val 2.4002 mse 1.1756 (uncorr 1.3650) eta 0.504
+  [C seed0 h292] ep5 train 16.8878 val 2.3890 mse 1.1271 (uncorr 1.3650) eta 0.506
+  [C seed0 h292] ep6 train 19.5620 val 2.5082 mse 1.0896 (uncorr 1.3650) eta 0.508
+  [C seed0 h292] ep7 train 18.5568 val 2.4183 mse 1.0627 (uncorr 1.3650) eta 0.510
+  [C seed0 h292] ep8 train 14.6148 val 2.1042 mse 1.0460 (uncorr 1.3650) eta 0.512
+  [C seed0 h292] ep9 train 17.1094 val 2.4790 mse 1.0391 (uncorr 1.3650) eta 0.513
+  [C seed0 h292] ep10 train 13.6390 val 2.2474 mse 1.0273 (uncorr 1.3650) eta 0.514
+  [C seed0 h292] ep11 train 13.2464 val 2.4012 mse 1.0163 (uncorr 1.3650) eta 0.515
+  [C seed0 h292] ep12 train 10.4668 val 2.2274 mse 1.0094 (uncorr 1.3650) eta 0.516
+  [C seed0 h292] ep13 train 12.0360 val 2.1691 mse 1.0056 (uncorr 1.3650) eta 0.516
+  [C seed0 h292] ep14 train 10.0061 val 2.0734 mse 0.9996 (uncorr 1.3650) eta 0.516
+  [C seed0 h292] ep15 train 12.2814 val 2.0771 mse 0.9993 (uncorr 1.3650) eta 0.517
+  [C seed0 h292] ep16 train 11.8340 val 2.3448 mse 0.9956 (uncorr 1.3650) eta 0.517
+  [C seed0 h292] ep17 train 14.1801 val 2.4685 mse 0.9962 (uncorr 1.3650) eta 0.517
+  [C seed0 h292] ep18 train 10.7538 val 2.1594 mse 0.9968 (uncorr 1.3650) eta 0.517
+  [C seed0 h292] ep19 train 13.1604 val 2.2327 mse 0.9967 (uncorr 1.3650) eta 0.517
+PC 0 {'sbleu': 4.191433941145876, 'bleu': 0.31580666104074606} 11.0
+FULL 0 {'sbleu': 3.4198979326381536, 'bleu': 0.15418448269739107} 10.766849725411882
+== seed 1
+  [C seed1 h292] ep0 train 20.6678 val 2.9298 mse 1.3756 (uncorr 1.3736) eta 0.500
+  [C seed1 h292] ep1 train 20.4532 val 2.7922 mse 1.3761 (uncorr 1.3736) eta 0.500
+  [C seed1 h292] ep2 train 23.2690 val 2.6324 mse 1.3304 (uncorr 1.3736) eta 0.501
+  [C seed1 h292] ep3 train 21.6423 val 2.5314 mse 1.2449 (uncorr 1.3736) eta 0.503
+  [C seed1 h292] ep4 train 20.4586 val 2.4464 mse 1.1589 (uncorr 1.3736) eta 0.505
+  [C seed1 h292] ep5 train 12.5951 val 2.3404 mse 1.1208 (uncorr 1.3736) eta 0.506
+  [C seed1 h292] ep6 train 13.8339 val 2.2688 mse 1.0814 (uncorr 1.3736) eta 0.508
+  [C seed1 h292] ep7 train 13.9731 val 2.3079 mse 1.0646 (uncorr 1.3736) eta 0.509
+  [C seed1 h292] ep8 train 16.9919 val 2.1800 mse 1.0406 (uncorr 1.3736) eta 0.511
+  [C seed1 h292] ep9 train 16.4023 val 2.1448 mse 1.0315 (uncorr 1.3736) eta 0.512
+  [C seed1 h292] ep10 train 13.0451 val 2.0496 mse 1.0163 (uncorr 1.3736) eta 0.514
+  [C seed1 h292] ep11 train 13.9583 val 2.1465 mse 1.0082 (uncorr 1.3736) eta 0.514
+  [C seed1 h292] ep12 train 11.5402 val 2.0412 mse 1.0046 (uncorr 1.3736) eta 0.515
+  [C seed1 h292] ep13 train 11.2897 val 2.0679 mse 0.9933 (uncorr 1.3736) eta 0.515
+  [C seed1 h292] ep14 train 12.3771 val 2.0325 mse 0.9913 (uncorr 1.3736) eta 0.516
+  [C seed1 h292] ep15 train 13.0543 val 2.0403 mse 0.9893 (uncorr 1.3736) eta 0.516
+  [C seed1 h292] ep16 train 11.4530 val 1.8556 mse 0.9869 (uncorr 1.3736) eta 0.516
+  [C seed1 h292] ep17 train 12.7545 val 2.0186 mse 0.9852 (uncorr 1.3736) eta 0.516
+  [C seed1 h292] ep18 train 12.0421 val 1.8940 mse 0.9851 (uncorr 1.3736) eta 0.516
+  [C seed1 h292] ep19 train 14.8697 val 2.0751 mse 0.9851 (uncorr 1.3736) eta 0.516
+PC 1 {'sbleu': 4.127763565522789, 'bleu': 0.2690922792288512} 11.0
+FULL 1 {'sbleu': 2.340933229062227, 'bleu': 0.025219820031353025} 10.511233150274588
+== seed 2
+  [C seed2 h292] ep0 train 20.7081 val 2.5182 mse 1.1964 (uncorr 1.1936) eta 0.500
+  [C seed2 h292] ep1 train 19.3272 val 2.6738 mse 1.1996 (uncorr 1.1936) eta 0.501
+  [C seed2 h292] ep2 train 24.0962 val 2.3471 mse 1.1593 (uncorr 1.1936) eta 0.501
+  [C seed2 h292] ep3 train 23.6610 val 2.5767 mse 1.0912 (uncorr 1.1936) eta 0.502
+  [C seed2 h292] ep4 train 20.2393 val 2.2238 mse 1.0431 (uncorr 1.1936) eta 0.504
+  [C seed2 h292] ep5 train 18.9401 val 2.4300 mse 1.0121 (uncorr 1.1936) eta 0.507
+  [C seed2 h292] ep6 train 16.4258 val 2.1512 mse 0.9779 (uncorr 1.1936) eta 0.508
+  [C seed2 h292] ep7 train 13.0370 val 2.4665 mse 0.9626 (uncorr 1.1936) eta 0.510
+  [C seed2 h292] ep8 train 14.8590 val 2.2471 mse 0.9452 (uncorr 1.1936) eta 0.511
+  [C seed2 h292] ep9 train 12.6659 val 1.9574 mse 0.9374 (uncorr 1.1936) eta 0.513
+  [C seed2 h292] ep10 train 13.6432 val 2.0022 mse 0.9243 (uncorr 1.1936) eta 0.514
+  [C seed2 h292] ep11 train 12.5240 val 2.0808 mse 0.9196 (uncorr 1.1936) eta 0.515
+  [C seed2 h292] ep12 train 12.3310 val 1.9723 mse 0.9157 (uncorr 1.1936) eta 0.515
+  [C seed2 h292] ep13 train 11.8140 val 1.9251 mse 0.9103 (uncorr 1.1936) eta 0.516
+  [C seed2 h292] ep14 train 10.7200 val 2.1037 mse 0.9065 (uncorr 1.1936) eta 0.516
+  [C seed2 h292] ep15 train 11.3053 val 2.0572 mse 0.9031 (uncorr 1.1936) eta 0.516
+  [C seed2 h292] ep16 train 13.2137 val 2.1563 mse 0.9044 (uncorr 1.1936) eta 0.516
+  [C seed2 h292] ep17 train 10.5612 val 1.7984 mse 0.9037 (uncorr 1.1936) eta 0.517
+  [C seed2 h292] ep18 train 12.2684 val 2.1291 mse 0.9033 (uncorr 1.1936) eta 0.517
+  [C seed2 h292] ep19 train 12.2669 val 1.9751 mse 0.9032 (uncorr 1.1936) eta 0.517
+PC 2 {'sbleu': 3.7709053878870766, 'bleu': 0.19778961345680204} 11.0
+FULL 2 {'sbleu': 3.2005216199293036, 'bleu': 0.07530065705672516} 10.670993509735396
+== seed 3
+  [C seed3 h292] ep0 train 22.7389 val 3.2041 mse 1.3263 (uncorr 1.3214) eta 0.500
+  [C seed3 h292] ep1 train 22.0897 val 2.8866 mse 1.3483 (uncorr 1.3214) eta 0.501
+  [C seed3 h292] ep2 train 17.7627 val 2.6796 mse 1.2826 (uncorr 1.3214) eta 0.501
+  [C seed3 h292] ep3 train 21.5304 val 2.6439 mse 1.2178 (uncorr 1.3214) eta 0.502
+  [C seed3 h292] ep4 train 17.2792 val 2.3814 mse 1.1480 (uncorr 1.3214) eta 0.504
+  [C seed3 h292] ep5 train 17.1186 val 2.3438 mse 1.0949 (uncorr 1.3214) eta 0.506
+  [C seed3 h292] ep6 train 17.6794 val 2.3416 mse 1.0705 (uncorr 1.3214) eta 0.508
+  [C seed3 h292] ep7 train 15.3550 val 2.3304 mse 1.0447 (uncorr 1.3214) eta 0.509
+  [C seed3 h292] ep8 train 15.7598 val 2.0705 mse 1.0213 (uncorr 1.3214) eta 0.511
+  [C seed3 h292] ep9 train 14.8848 val 2.0715 mse 1.0099 (uncorr 1.3214) eta 0.512
+  [C seed3 h292] ep10 train 16.0761 val 2.2806 mse 0.9983 (uncorr 1.3214) eta 0.513
+  [C seed3 h292] ep11 train 15.4951 val 1.9113 mse 0.9895 (uncorr 1.3214) eta 0.515
+  [C seed3 h292] ep12 train 14.2396 val 2.1576 mse 0.9824 (uncorr 1.3214) eta 0.515
+  [C seed3 h292] ep13 train 13.1976 val 1.9167 mse 0.9785 (uncorr 1.3214) eta 0.516
+  [C seed3 h292] ep14 train 8.3216 val 2.3926 mse 0.9724 (uncorr 1.3214) eta 0.516
+  [C seed3 h292] ep15 train 9.8838 val 2.1580 mse 0.9728 (uncorr 1.3214) eta 0.516
+  [C seed3 h292] ep16 train 12.3150 val 2.2092 mse 0.9703 (uncorr 1.3214) eta 0.517
+  [C seed3 h292] ep17 train 11.0353 val 1.8712 mse 0.9685 (uncorr 1.3214) eta 0.517
+  [C seed3 h292] ep18 train 7.2389 val 2.2929 mse 0.9680 (uncorr 1.3214) eta 0.517
+  [C seed3 h292] ep19 train 11.4217 val 2.1155 mse 0.9680 (uncorr 1.3214) eta 0.517
+PC 3 {'sbleu': 3.739089144955167, 'bleu': 0.21750119140829713} 11.0
+FULL 3 {'sbleu': 3.6664819057835283, 'bleu': 0.1997698426803775} 10.968047928107838
+ALL DONE

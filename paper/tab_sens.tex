@@ -1,0 +1,31 @@
+\begin{table}[t]
+\centering
+\caption{Sensitivity on Sudoku-hard (1{,}500 test boards; NCM: 86.7\% solved, 98.4\% cells). Top: halting threshold on uncorrected latents, cells give solved\,\% / $\bar k$ for the flux and stability rules. Middle and bottom: in-loop corrector with fixed $\eta_k$ (no step-size calibration) and different sizes (learned $\eta_k$, initialized at 0.5), seed 42, without and with validation checkpoint selection; columns give solved\,\%, cell\,\%, parameters, training time (s, 40 epochs on T4) and peak training memory (MB).}
+\label{tab:sens}
+\setlength{\tabcolsep}{2.4pt}
+\begin{tabular}{lccccc}
+\toprule
+Setting & flux / solved & stab / cell & params & s & MB\\
+\midrule
+$\tau=0.01$ & 86.7 / 12.00 & 86.7 / 12.00 & -- & -- & --\\
+$\tau=0.03$ & 86.7 / 12.00 & 86.7 / 12.00 & -- & -- & --\\
+$\tau=0.05$ & 36.2 / 7.99 & 86.7 / 12.00 & -- & -- & --\\
+$\tau=0.1$ & 0.0 / 5.00 & 74.4 / 10.97 & -- & -- & --\\
+$\tau=0.15$ & 0.0 / 5.00 & 0.0 / 5.00 & -- & -- & --\\
+\midrule
+$\eta_k\equiv0.25$ (no sel.) & 17.4 & 52.5 & 1.23M & 127 & 3635\\
+$\eta_k\equiv0.5$ (no sel.) & 10.5 & 41.7 & 1.23M & 127 & 3761\\
+$\eta_k\equiv1.0$ (no sel.) & 44.3 & 73.8 & 1.23M & 127 & 2950\\
+$\eta_k\equiv0.25$ (val.-sel.) & 86.4 & 98.3 & 1.23M & 122 & 1732\\
+$\eta_k\equiv0.5$ (val.-sel.) & 86.5 & 98.4 & 1.23M & 122 & 1193\\
+$\eta_k\equiv1.0$ (val.-sel.) & 86.4 & 98.4 & 1.23M & 122 & 820\\
+\midrule
+size 0.31M (no sel.) & 0.5 & 16.4 & 0.31M & 85 & 1560\\
+size 1.23M (no sel.) & 17.9 & 52.7 & 1.23M & 127 & 3769\\
+size 3.04M (no sel.) & 58.8 & 86.5 & 3.04M & 191 & 4360\\
+size 0.31M (val.-sel.) & 62.5 & 89.3 & 0.31M & 82 & 813\\
+size 1.23M (val.-sel.) & 86.5 & 98.4 & 1.23M & 122 & 812\\
+size 3.04M (val.-sel.) & 86.9 & 98.4 & 3.04M & 181 & 834\\
+\bottomrule
+\end{tabular}
+\end{table}

@@ -1,0 +1,8 @@
+__pycache__/
+*.pt
+ck/
+data/
+out/
+paper/*.pdf
+paper/*.aux
+paper/*.log

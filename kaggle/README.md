@@ -1,0 +1,1 @@
+Kaggle T4 job templates. The original jobs embedded `src/*.py` base64-encoded in `run.py`; build a job with `python scripts/build_kaggle_job.py <slug>` or copy `src/` into the kernel and run the command lines listed in `../README.md`. Replace `<kaggle-username>` before `kaggle kernels push`.

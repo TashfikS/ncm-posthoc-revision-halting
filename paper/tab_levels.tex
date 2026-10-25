@@ -1,0 +1,28 @@
+\begin{table*}[t]
+\centering
+\caption{Quality of the decoded intermediate latent $D_\psi(\zh^{(k)})$ (or $D_\psi(\zt^{(k)})$) at every level $k$, seed 42, test items. Fine-drop makes every level decodable, but quality rises steeply only over the last third of the hierarchy. WMT14 has 11 levels and XSum 9.}
+\label{tab:levels}
+\setlength{\tabcolsep}{2.6pt}
+\begin{tabular}{llcccccccccccc}
+\toprule
+ & & \multicolumn{12}{c}{level $k$}\\
+ & & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 & 11 & 12\\
+\midrule
+Sudoku-hard cell acc. & NCM & 14.6 & 14.6 & 16.9 & 20.2 & 20.2 & 27.8 & 33.2 & 45.5 & 62.0 & 76.1 & 81.9 & 98.4\\
+ & in-loop $C_\omega$ (no sel.) & 14.4 & 14.2 & 16.5 & 19.2 & 17.1 & 25.0 & 25.7 & 20.5 & 1.8 & 2.1 & 8.7 & 52.7\\
+ & decode-path $C_\omega$ & 14.6 & 14.6 & 16.9 & 20.2 & 20.2 & 27.8 & 33.1 & 45.5 & 62.0 & 76.2 & 82.1 & 98.4\\
+\midrule
+Sudoku-hard solved & NCM & 0.0 & 0.0 & 0.0 & 0.0 & 0.0 & 0.0 & 0.0 & 0.0 & 0.0 & 0.0 & 0.0 & 86.7\\
+ & in-loop $C_\omega$ (no sel.) & 0.0 & 0.0 & 0.0 & 0.0 & 0.0 & 0.0 & 0.0 & 0.0 & 0.0 & 0.0 & 0.0 & 17.9\\
+ & decode-path $C_\omega$ & 0.0 & 0.0 & 0.0 & 0.0 & 0.0 & 0.0 & 0.0 & 0.0 & 0.0 & 0.0 & 0.0 & 86.7\\
+\midrule
+WMT14 BLEU & NCM & 0.4 & 0.9 & 1.6 & 2.9 & 5.0 & 7.6 & 12.3 & 15.4 & 17.7 & 19.2 & 22.3 & --\\
+ & in-loop $C_\omega$ (no sel.) & 0.1 & 0.1 & 0.1 & 0.2 & 0.2 & 0.1 & 0.0 & 0.0 & 0.0 & 0.0 & 0.0 & --\\
+ & decode-path $C_\omega$ & 0.4 & 0.9 & 1.5 & 2.8 & 5.0 & 7.6 & 12.3 & 15.4 & 17.7 & 19.2 & 22.3 & --\\
+\midrule
+XSum R-L & NCM & 19.2 & 21.7 & 23.0 & 23.6 & 24.5 & 25.4 & 26.1 & 26.4 & 27.6 & -- & -- & --\\
+ & in-loop $C_\omega$ (no sel.) & 8.3 & 2.8 & 1.6 & 1.5 & 1.7 & 2.2 & 1.9 & 0.9 & 6.3 & -- & -- & --\\
+ & decode-path $C_\omega$ & 19.2 & 21.7 & 23.0 & 23.6 & 24.5 & 25.4 & 26.1 & 26.4 & 27.6 & -- & -- & --\\
+\bottomrule
+\end{tabular}
+\end{table*}

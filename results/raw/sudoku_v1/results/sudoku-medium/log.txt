@@ -1,0 +1,247 @@
+OFFICIAL: /usr/bin/python3 /tmp/ncm_workspace/ncm/evaluate.py --config /tmp/ncm_workspace/ncm/config/eval/sudoku-medium.yaml --checkpoint-dir /tmp/ncm_workspace/ck/sudoku/medium --data-dir /tmp/ncm_workspace/data/sudoku/medium --out /kaggle/working/results/sudoku-medium/official --gpus 0
+[evaluate] 1 shard(s) on GPU(s) 0 -> /kaggle/working/results/sudoku-medium/official/
+
+merged 1 shards -> 2000 sudoku-medium outputs
+
+ solved %  solved  cell %  valid %
+    96.40 1928/2000   99.79    96.40
+
+
+levels [1, 2, 4, 6, 9, 13, 18, 26, 37, 50, 67, 89] d 256 gen params 25457600
+== baseline (test)
+{'scores': {'exact': 96.0, 'cell': 99.76213991769546}, 'levels': 12.0, 'ms_per_batch': 3435.5077097498756, 'ms_per_batch_std': 254.17162454789803, 'total_s': 41.226092516998506, 'peak_mb': 3820.96240234375, 'frozen_frac': 0.0, 'per_level': [{'exact': 0.0, 'cell': 14.932510288065842}, {'exact': 0.0, 'cell': 14.781069958847738}, {'exact': 0.0, 'cell': 17.204938271604934}, {'exact': 0.0, 'cell': 20.2238683127572}, {'exact': 0.0, 'cell': 20.35390946502058}, {'exact': 0.0, 'cell': 28.546502057613164}, {'exact': 0.0, 'cell': 33.88230452674897}, {'exact': 0.0, 'cell': 45.28559670781893}, {'exact': 0.0, 'cell': 60.81975308641976}, {'exact': 0.0, 'cell': 75.21234567901234}, {'exact': 0.0, 'cell': 81.64444444444443}, {'exact': 96.0, 'cell': 99.76213991769546}]}
+flops/sample by levels {2: 9846725632.0, 3: 14812208128.0, 4: 19885202432.0, 5: 25119710208.0, 6: 30570028032.0, 7: 36290845696.0, 8: 42446167040.0, 9: 49202355200.0, 10: 56673770496.0, 11: 65088838656.0, 12: 74739162112.0}
+== tau sweep on TRAIN split (baseline, flux & stability)
+flux 0.01 {'exact': 97.6, 'cell': 99.8888888888889} 12.0
+flux 0.03 {'exact': 97.6, 'cell': 99.8888888888889} 12.0
+flux 0.05 {'exact': 97.6, 'cell': 99.8888888888889} 12.0
+flux 0.1 {'exact': 97.6, 'cell': 99.8888888888889} 12.0
+flux 0.15 {'exact': 50.0, 'cell': 59.5358024691358} 7.608
+stab 0.01 {'exact': 97.6, 'cell': 99.8888888888889} 12.0
+stab 0.03 {'exact': 97.6, 'cell': 99.8888888888889} 12.0
+stab 0.05 {'exact': 97.6, 'cell': 99.8888888888889} 12.0
+stab 0.1 {'exact': 97.6, 'cell': 99.8888888888889} 12.0
+stab 0.15 {'exact': 97.6, 'cell': 99.8888888888889} 12.0
+selected halting {'mode': 'flux', 'tau': 0.01, 'kmin': 2}
+== halting-only (test)
+{'scores': {'exact': 96.0, 'cell': 99.76213991769546}, 'levels': 12.0, 'ms_per_batch': 3482.355900499897, 'ms_per_batch_std': 271.5056697937793, 'total_s': 41.78827080599876, 'peak_mb': 4029.1708984375, 'frozen_frac': 0.0}
+== test tau sweep, baseline
+== building corrector training set from TRAIN split rollouts + code corruption
+train set {'prefix': (500, 91), 'y': (500, 89), 'zg': (500, 11, 89, 256), 'zr': (500, 11, 89, 256), 'zc': (2, 500, 11, 89, 256)} 16.0s
+== seed 42
+  [C seed42 h312] ep0 train 8.8727 val 0.0924 mse 0.0507 (uncorr 0.0506) eta 0.500
+  [C seed42 h312] ep1 train 10.6479 val 0.1667 mse 0.0714 (uncorr 0.0506) eta 0.500
+  [C seed42 h312] ep2 train 7.2369 val 0.1527 mse 0.0733 (uncorr 0.0506) eta 0.500
+  [C seed42 h312] ep3 train 4.5143 val 0.1623 mse 0.0623 (uncorr 0.0506) eta 0.501
+  [C seed42 h312] ep4 train 2.1113 val 0.1665 mse 0.0790 (uncorr 0.0506) eta 0.501
+  [C seed42 h312] ep5 train 1.5391 val 0.2368 mse 0.1286 (uncorr 0.0506) eta 0.502
+  [C seed42 h312] ep6 train 0.8134 val 0.3066 mse 0.1770 (uncorr 0.0506) eta 0.502
+  [C seed42 h312] ep7 train 0.4677 val 0.1693 mse 0.1073 (uncorr 0.0506) eta 0.502
+  [C seed42 h312] ep8 train 0.7520 val 0.2140 mse 0.1202 (uncorr 0.0506) eta 0.502
+  [C seed42 h312] ep9 train 0.6164 val 0.1783 mse 0.0996 (uncorr 0.0506) eta 0.502
+  [C seed42 h312] ep10 train 0.5215 val 0.1429 mse 0.0876 (uncorr 0.0506) eta 0.502
+  [C seed42 h312] ep11 train 0.3642 val 0.1298 mse 0.0817 (uncorr 0.0506) eta 0.502
+  [C seed42 h312] ep12 train 0.4193 val 0.1382 mse 0.0802 (uncorr 0.0506) eta 0.502
+  [C seed42 h312] ep13 train 0.4749 val 0.1460 mse 0.0820 (uncorr 0.0506) eta 0.502
+  [C seed42 h312] ep14 train 0.3977 val 0.1295 mse 0.0807 (uncorr 0.0506) eta 0.502
+  [C seed42 h312] ep15 train 0.4879 val 0.1471 mse 0.0947 (uncorr 0.0506) eta 0.502
+  [C seed42 h312] ep16 train 0.3649 val 0.1296 mse 0.0823 (uncorr 0.0506) eta 0.502
+  [C seed42 h312] ep17 train 0.4139 val 0.1307 mse 0.0830 (uncorr 0.0506) eta 0.502
+  [C seed42 h312] ep18 train 0.3084 val 0.1253 mse 0.0793 (uncorr 0.0506) eta 0.502
+  [C seed42 h312] ep19 train 0.3123 val 0.1237 mse 0.0788 (uncorr 0.0506) eta 0.502
+  [C seed42 h312] ep20 train 0.3875 val 0.1268 mse 0.0815 (uncorr 0.0506) eta 0.502
+  [C seed42 h312] ep21 train 0.3842 val 0.1234 mse 0.0778 (uncorr 0.0506) eta 0.502
+  [C seed42 h312] ep22 train 0.4296 val 0.1553 mse 0.0836 (uncorr 0.0506) eta 0.502
+  [C seed42 h312] ep23 train 0.3485 val 0.1265 mse 0.0786 (uncorr 0.0506) eta 0.502
+  [C seed42 h312] ep24 train 0.3415 val 0.1234 mse 0.0763 (uncorr 0.0506) eta 0.502
+  [C seed42 h312] ep25 train 0.3626 val 0.1219 mse 0.0774 (uncorr 0.0506) eta 0.502
+  [C seed42 h312] ep26 train 0.3664 val 0.1231 mse 0.0784 (uncorr 0.0506) eta 0.502
+  [C seed42 h312] ep27 train 0.3273 val 0.1205 mse 0.0760 (uncorr 0.0506) eta 0.502
+  [C seed42 h312] ep28 train 0.3216 val 0.1191 mse 0.0750 (uncorr 0.0506) eta 0.502
+  [C seed42 h312] ep29 train 0.3633 val 0.1187 mse 0.0747 (uncorr 0.0506) eta 0.502
+  [C seed42 h312] ep30 train 0.3305 val 0.1192 mse 0.0752 (uncorr 0.0506) eta 0.502
+  [C seed42 h312] ep31 train 0.3047 val 0.1188 mse 0.0747 (uncorr 0.0506) eta 0.502
+  [C seed42 h312] ep32 train 0.3256 val 0.1179 mse 0.0741 (uncorr 0.0506) eta 0.502
+  [C seed42 h312] ep33 train 0.3630 val 0.1176 mse 0.0739 (uncorr 0.0506) eta 0.502
+  [C seed42 h312] ep34 train 0.3070 val 0.1177 mse 0.0740 (uncorr 0.0506) eta 0.502
+  [C seed42 h312] ep35 train 0.2843 val 0.1174 mse 0.0737 (uncorr 0.0506) eta 0.502
+  [C seed42 h312] ep36 train 0.3224 val 0.1172 mse 0.0736 (uncorr 0.0506) eta 0.502
+  [C seed42 h312] ep37 train 0.3533 val 0.1172 mse 0.0736 (uncorr 0.0506) eta 0.502
+  [C seed42 h312] ep38 train 0.3241 val 0.1172 mse 0.0736 (uncorr 0.0506) eta 0.502
+  [C seed42 h312] ep39 train 0.3312 val 0.1172 mse 0.0736 (uncorr 0.0506) eta 0.502
+selected halting (APC) {'mode': 'flux', 'tau': 0.01, 'kmin': 2}
+PC 42 {'exact': 73.73333333333333, 'cell': 99.0323353909465} 12.0
+FULL 42 {'exact': 73.73333333333333, 'cell': 99.0323353909465} 12.0
+== seed 0
+  [C seed0 h312] ep0 train 12.5728 val 0.1008 mse 0.0527 (uncorr 0.0525) eta 0.500
+  [C seed0 h312] ep1 train 8.0277 val 0.1545 mse 0.0683 (uncorr 0.0525) eta 0.500
+  [C seed0 h312] ep2 train 5.9455 val 0.1586 mse 0.0760 (uncorr 0.0525) eta 0.500
+  [C seed0 h312] ep3 train 4.8677 val 0.1580 mse 0.0601 (uncorr 0.0525) eta 0.501
+  [C seed0 h312] ep4 train 2.4019 val 0.1748 mse 0.0961 (uncorr 0.0525) eta 0.502
+  [C seed0 h312] ep5 train 1.0548 val 0.2032 mse 0.1233 (uncorr 0.0525) eta 0.502
+  [C seed0 h312] ep6 train 0.6486 val 0.1496 mse 0.0876 (uncorr 0.0525) eta 0.502
+  [C seed0 h312] ep7 train 1.4881 val 0.1266 mse 0.0755 (uncorr 0.0525) eta 0.502
+  [C seed0 h312] ep8 train 0.5919 val 0.1229 mse 0.0733 (uncorr 0.0525) eta 0.502
+  [C seed0 h312] ep9 train 0.6186 val 0.1260 mse 0.0753 (uncorr 0.0525) eta 0.502
+  [C seed0 h312] ep10 train 0.4895 val 0.1289 mse 0.0732 (uncorr 0.0525) eta 0.502
+  [C seed0 h312] ep11 train 0.5783 val 0.1264 mse 0.0752 (uncorr 0.0525) eta 0.502
+  [C seed0 h312] ep12 train 0.4550 val 0.1316 mse 0.0801 (uncorr 0.0525) eta 0.502
+  [C seed0 h312] ep13 train 0.4615 val 0.1378 mse 0.0838 (uncorr 0.0525) eta 0.502
+  [C seed0 h312] ep14 train 0.3955 val 0.1286 mse 0.0782 (uncorr 0.0525) eta 0.502
+  [C seed0 h312] ep15 train 0.4482 val 0.1283 mse 0.0787 (uncorr 0.0525) eta 0.502
+  [C seed0 h312] ep16 train 0.3557 val 0.1250 mse 0.0762 (uncorr 0.0525) eta 0.502
+  [C seed0 h312] ep17 train 0.3809 val 0.1260 mse 0.0762 (uncorr 0.0525) eta 0.502
+  [C seed0 h312] ep18 train 0.4299 val 0.1300 mse 0.0799 (uncorr 0.0525) eta 0.502
+  [C seed0 h312] ep19 train 0.3541 val 0.1293 mse 0.0767 (uncorr 0.0525) eta 0.502
+  [C seed0 h312] ep20 train 0.3519 val 0.1256 mse 0.0776 (uncorr 0.0525) eta 0.502
+  [C seed0 h312] ep21 train 0.2988 val 0.1237 mse 0.0749 (uncorr 0.0525) eta 0.502
+  [C seed0 h312] ep22 train 0.3718 val 0.1246 mse 0.0756 (uncorr 0.0525) eta 0.502
+  [C seed0 h312] ep23 train 0.2809 val 0.1214 mse 0.0736 (uncorr 0.0525) eta 0.502
+  [C seed0 h312] ep24 train 0.2937 val 0.1197 mse 0.0729 (uncorr 0.0525) eta 0.502
+  [C seed0 h312] ep25 train 0.3433 val 0.1192 mse 0.0724 (uncorr 0.0525) eta 0.502
+  [C seed0 h312] ep26 train 0.3645 val 0.1197 mse 0.0730 (uncorr 0.0525) eta 0.502
+  [C seed0 h312] ep27 train 0.3137 val 0.1191 mse 0.0725 (uncorr 0.0525) eta 0.502
+  [C seed0 h312] ep28 train 0.3459 val 0.1185 mse 0.0720 (uncorr 0.0525) eta 0.502
+  [C seed0 h312] ep29 train 0.3093 val 0.1190 mse 0.0722 (uncorr 0.0525) eta 0.502
+  [C seed0 h312] ep30 train 0.3155 val 0.1184 mse 0.0719 (uncorr 0.0525) eta 0.502
+  [C seed0 h312] ep31 train 0.3094 val 0.1180 mse 0.0715 (uncorr 0.0525) eta 0.502
+  [C seed0 h312] ep32 train 0.3445 val 0.1182 mse 0.0715 (uncorr 0.0525) eta 0.502
+  [C seed0 h312] ep33 train 0.3132 val 0.1179 mse 0.0714 (uncorr 0.0525) eta 0.502
+  [C seed0 h312] ep34 train 0.3894 val 0.1180 mse 0.0716 (uncorr 0.0525) eta 0.502
+  [C seed0 h312] ep35 train 0.3114 val 0.1179 mse 0.0716 (uncorr 0.0525) eta 0.502
+  [C seed0 h312] ep36 train 0.3452 val 0.1179 mse 0.0715 (uncorr 0.0525) eta 0.502
+  [C seed0 h312] ep37 train 0.3259 val 0.1180 mse 0.0715 (uncorr 0.0525) eta 0.502
+  [C seed0 h312] ep38 train 0.3167 val 0.1180 mse 0.0715 (uncorr 0.0525) eta 0.502
+  [C seed0 h312] ep39 train 0.3759 val 0.1180 mse 0.0715 (uncorr 0.0525) eta 0.502
+PC 0 {'exact': 82.6, 'cell': 98.94398148148149} 12.0
+FULL 0 {'exact': 82.6, 'cell': 98.94398148148149} 12.0
+== seed 1
+  [C seed1 h312] ep0 train 7.8081 val 0.1398 mse 0.0661 (uncorr 0.0660) eta 0.500
+  [C seed1 h312] ep1 train 8.9771 val 0.1939 mse 0.0838 (uncorr 0.0660) eta 0.500
+  [C seed1 h312] ep2 train 5.2251 val 0.1611 mse 0.0734 (uncorr 0.0660) eta 0.500
+  [C seed1 h312] ep3 train 4.3832 val 0.1736 mse 0.0684 (uncorr 0.0660) eta 0.501
+  [C seed1 h312] ep4 train 3.2433 val 0.1759 mse 0.0773 (uncorr 0.0660) eta 0.501
+  [C seed1 h312] ep5 train 1.9748 val 0.3625 mse 0.1673 (uncorr 0.0660) eta 0.502
+  [C seed1 h312] ep6 train 0.7187 val 0.2189 mse 0.1265 (uncorr 0.0660) eta 0.502
+  [C seed1 h312] ep7 train 0.5565 val 0.2119 mse 0.1193 (uncorr 0.0660) eta 0.502
+  [C seed1 h312] ep8 train 0.5544 val 0.1754 mse 0.0897 (uncorr 0.0660) eta 0.502
+  [C seed1 h312] ep9 train 0.5578 val 0.1893 mse 0.1069 (uncorr 0.0660) eta 0.502
+  [C seed1 h312] ep10 train 0.4993 val 0.1776 mse 0.0912 (uncorr 0.0660) eta 0.502
+  [C seed1 h312] ep11 train 0.4438 val 0.1654 mse 0.0886 (uncorr 0.0660) eta 0.502
+  [C seed1 h312] ep12 train 0.4589 val 0.1634 mse 0.0888 (uncorr 0.0660) eta 0.502
+  [C seed1 h312] ep13 train 0.3526 val 0.1625 mse 0.0877 (uncorr 0.0660) eta 0.502
+  [C seed1 h312] ep14 train 0.4304 val 0.1663 mse 0.0845 (uncorr 0.0660) eta 0.502
+  [C seed1 h312] ep15 train 0.4606 val 0.1619 mse 0.0884 (uncorr 0.0660) eta 0.502
+  [C seed1 h312] ep16 train 0.3389 val 0.1586 mse 0.0834 (uncorr 0.0660) eta 0.502
+  [C seed1 h312] ep17 train 0.4095 val 0.1653 mse 0.0881 (uncorr 0.0660) eta 0.502
+  [C seed1 h312] ep18 train 0.4884 val 0.1698 mse 0.0944 (uncorr 0.0660) eta 0.502
+  [C seed1 h312] ep19 train 0.3301 val 0.1602 mse 0.0854 (uncorr 0.0660) eta 0.502
+  [C seed1 h312] ep20 train 0.3861 val 0.1598 mse 0.0873 (uncorr 0.0660) eta 0.502
+  [C seed1 h312] ep21 train 0.3113 val 0.1588 mse 0.0833 (uncorr 0.0660) eta 0.502
+  [C seed1 h312] ep22 train 0.3930 val 0.1619 mse 0.0865 (uncorr 0.0660) eta 0.502
+  [C seed1 h312] ep23 train 0.3274 val 0.1562 mse 0.0836 (uncorr 0.0660) eta 0.502
+  [C seed1 h312] ep24 train 0.3905 val 0.1598 mse 0.0853 (uncorr 0.0660) eta 0.502
+  [C seed1 h312] ep25 train 0.3495 val 0.1562 mse 0.0840 (uncorr 0.0660) eta 0.502
+  [C seed1 h312] ep26 train 0.3125 val 0.1562 mse 0.0832 (uncorr 0.0660) eta 0.502
+  [C seed1 h312] ep27 train 0.3183 val 0.1561 mse 0.0826 (uncorr 0.0660) eta 0.502
+  [C seed1 h312] ep28 train 0.4008 val 0.1577 mse 0.0836 (uncorr 0.0660) eta 0.502
+  [C seed1 h312] ep29 train 0.3518 val 0.1577 mse 0.0840 (uncorr 0.0660) eta 0.502
+  [C seed1 h312] ep30 train 0.3475 val 0.1561 mse 0.0833 (uncorr 0.0660) eta 0.502
+  [C seed1 h312] ep31 train 0.2667 val 0.1554 mse 0.0823 (uncorr 0.0660) eta 0.502
+  [C seed1 h312] ep32 train 0.3700 val 0.1557 mse 0.0822 (uncorr 0.0660) eta 0.502
+  [C seed1 h312] ep33 train 0.3745 val 0.1562 mse 0.0825 (uncorr 0.0660) eta 0.502
+  [C seed1 h312] ep34 train 0.3254 val 0.1559 mse 0.0826 (uncorr 0.0660) eta 0.502
+  [C seed1 h312] ep35 train 0.3305 val 0.1556 mse 0.0825 (uncorr 0.0660) eta 0.502
+  [C seed1 h312] ep36 train 0.4165 val 0.1556 mse 0.0826 (uncorr 0.0660) eta 0.502
+  [C seed1 h312] ep37 train 0.2992 val 0.1556 mse 0.0825 (uncorr 0.0660) eta 0.502
+  [C seed1 h312] ep38 train 0.3454 val 0.1556 mse 0.0825 (uncorr 0.0660) eta 0.502
+  [C seed1 h312] ep39 train 0.3567 val 0.1556 mse 0.0825 (uncorr 0.0660) eta 0.502
+PC 1 {'exact': 70.53333333333333, 'cell': 92.10580882028843} 12.0
+FULL 1 {'exact': 70.53333333333333, 'cell': 92.10580882028843} 12.0
+== seed 2
+  [C seed2 h312] ep0 train 9.7116 val 0.0748 mse 0.0340 (uncorr 0.0339) eta 0.500
+  [C seed2 h312] ep1 train 10.8824 val 0.1394 mse 0.0493 (uncorr 0.0339) eta 0.500
+  [C seed2 h312] ep2 train 6.0285 val 0.1228 mse 0.0535 (uncorr 0.0339) eta 0.500
+  [C seed2 h312] ep3 train 5.3434 val 0.1606 mse 0.0483 (uncorr 0.0339) eta 0.501
+  [C seed2 h312] ep4 train 2.1048 val 0.1698 mse 0.0836 (uncorr 0.0339) eta 0.502
+  [C seed2 h312] ep5 train 0.8765 val 0.1413 mse 0.0802 (uncorr 0.0339) eta 0.502
+  [C seed2 h312] ep6 train 0.9407 val 0.1295 mse 0.0766 (uncorr 0.0339) eta 0.502
+  [C seed2 h312] ep7 train 0.7224 val 0.1222 mse 0.0724 (uncorr 0.0339) eta 0.502
+  [C seed2 h312] ep8 train 0.5711 val 0.1158 mse 0.0673 (uncorr 0.0339) eta 0.502
+  [C seed2 h312] ep9 train 0.6231 val 0.1228 mse 0.0748 (uncorr 0.0339) eta 0.502
+  [C seed2 h312] ep10 train 0.5076 val 0.1176 mse 0.0717 (uncorr 0.0339) eta 0.502
+  [C seed2 h312] ep11 train 0.3923 val 0.1116 mse 0.0677 (uncorr 0.0339) eta 0.502
+  [C seed2 h312] ep12 train 0.4358 val 0.1082 mse 0.0657 (uncorr 0.0339) eta 0.502
+  [C seed2 h312] ep13 train 0.4754 val 0.1062 mse 0.0638 (uncorr 0.0339) eta 0.502
+  [C seed2 h312] ep14 train 0.8725 val 0.1191 mse 0.0653 (uncorr 0.0339) eta 0.502
+  [C seed2 h312] ep15 train 0.5087 val 0.1115 mse 0.0665 (uncorr 0.0339) eta 0.502
+  [C seed2 h312] ep16 train 0.4671 val 0.1086 mse 0.0653 (uncorr 0.0339) eta 0.502
+  [C seed2 h312] ep17 train 0.4594 val 0.1084 mse 0.0659 (uncorr 0.0339) eta 0.502
+  [C seed2 h312] ep18 train 0.4223 val 0.1094 mse 0.0679 (uncorr 0.0339) eta 0.502
+  [C seed2 h312] ep19 train 0.3848 val 0.1080 mse 0.0669 (uncorr 0.0339) eta 0.502
+  [C seed2 h312] ep20 train 0.3706 val 0.1084 mse 0.0670 (uncorr 0.0339) eta 0.502
+  [C seed2 h312] ep21 train 0.3354 val 0.1085 mse 0.0658 (uncorr 0.0339) eta 0.502
+  [C seed2 h312] ep22 train 0.3246 val 0.1058 mse 0.0648 (uncorr 0.0339) eta 0.502
+  [C seed2 h312] ep23 train 0.2816 val 0.1046 mse 0.0635 (uncorr 0.0339) eta 0.502
+  [C seed2 h312] ep24 train 0.2780 val 0.1028 mse 0.0621 (uncorr 0.0339) eta 0.502
+  [C seed2 h312] ep25 train 0.3469 val 0.1024 mse 0.0625 (uncorr 0.0339) eta 0.502
+  [C seed2 h312] ep26 train 0.3382 val 0.1049 mse 0.0643 (uncorr 0.0339) eta 0.502
+  [C seed2 h312] ep27 train 0.3584 val 0.1022 mse 0.0621 (uncorr 0.0339) eta 0.502
+  [C seed2 h312] ep28 train 0.4061 val 0.1033 mse 0.0631 (uncorr 0.0339) eta 0.502
+  [C seed2 h312] ep29 train 0.3028 val 0.1035 mse 0.0630 (uncorr 0.0339) eta 0.502
+  [C seed2 h312] ep30 train 0.3398 val 0.1023 mse 0.0617 (uncorr 0.0339) eta 0.502
+  [C seed2 h312] ep31 train 0.2937 val 0.1016 mse 0.0615 (uncorr 0.0339) eta 0.502
+  [C seed2 h312] ep32 train 0.3308 val 0.1019 mse 0.0618 (uncorr 0.0339) eta 0.502
+  [C seed2 h312] ep33 train 0.2855 val 0.1014 mse 0.0615 (uncorr 0.0339) eta 0.502
+  [C seed2 h312] ep34 train 0.2634 val 0.1011 mse 0.0612 (uncorr 0.0339) eta 0.502
+  [C seed2 h312] ep35 train 0.2816 val 0.1009 mse 0.0611 (uncorr 0.0339) eta 0.502
+  [C seed2 h312] ep36 train 0.3765 val 0.1010 mse 0.0611 (uncorr 0.0339) eta 0.502
+  [C seed2 h312] ep37 train 0.3008 val 0.1011 mse 0.0612 (uncorr 0.0339) eta 0.502
+  [C seed2 h312] ep38 train 0.2450 val 0.1010 mse 0.0612 (uncorr 0.0339) eta 0.502
+  [C seed2 h312] ep39 train 0.3161 val 0.1010 mse 0.0612 (uncorr 0.0339) eta 0.502
+PC 2 {'exact': 82.06666666666666, 'cell': 99.23760288065844} 12.0
+FULL 2 {'exact': 82.06666666666666, 'cell': 99.23760288065844} 12.0
+== seed 3
+  [C seed3 h312] ep0 train 8.7980 val 0.0796 mse 0.0375 (uncorr 0.0374) eta 0.500
+  [C seed3 h312] ep1 train 9.7348 val 0.1427 mse 0.0559 (uncorr 0.0374) eta 0.500
+  [C seed3 h312] ep2 train 5.1991 val 0.0994 mse 0.0473 (uncorr 0.0374) eta 0.500
+  [C seed3 h312] ep3 train 5.6391 val 0.1756 mse 0.0498 (uncorr 0.0374) eta 0.501
+  [C seed3 h312] ep4 train 2.7626 val 0.2762 mse 0.1279 (uncorr 0.0374) eta 0.502
+  [C seed3 h312] ep5 train 0.9873 val 0.2113 mse 0.1222 (uncorr 0.0374) eta 0.502
+  [C seed3 h312] ep6 train 0.7143 val 0.2153 mse 0.1225 (uncorr 0.0374) eta 0.502
+  [C seed3 h312] ep7 train 0.6785 val 0.2623 mse 0.1490 (uncorr 0.0374) eta 0.502
+  [C seed3 h312] ep8 train 0.4941 val 0.1723 mse 0.1106 (uncorr 0.0374) eta 0.502
+  [C seed3 h312] ep9 train 0.4899 val 0.1614 mse 0.0990 (uncorr 0.0374) eta 0.502
+  [C seed3 h312] ep10 train 0.4371 val 0.1407 mse 0.0876 (uncorr 0.0374) eta 0.502
+  [C seed3 h312] ep11 train 0.4686 val 0.1656 mse 0.1016 (uncorr 0.0374) eta 0.503
+  [C seed3 h312] ep12 train 0.4536 val 0.1368 mse 0.0851 (uncorr 0.0374) eta 0.503
+  [C seed3 h312] ep13 train 0.3524 val 0.1268 mse 0.0781 (uncorr 0.0374) eta 0.503
+  [C seed3 h312] ep14 train 0.4341 val 0.1328 mse 0.0832 (uncorr 0.0374) eta 0.503
+  [C seed3 h312] ep15 train 0.3948 val 0.1276 mse 0.0784 (uncorr 0.0374) eta 0.503
+  [C seed3 h312] ep16 train 0.3602 val 0.1292 mse 0.0791 (uncorr 0.0374) eta 0.503
+  [C seed3 h312] ep17 train 0.2854 val 0.1194 mse 0.0722 (uncorr 0.0374) eta 0.503
+  [C seed3 h312] ep18 train 0.2949 val 0.1173 mse 0.0712 (uncorr 0.0374) eta 0.502
+  [C seed3 h312] ep19 train 0.3759 val 0.1362 mse 0.0712 (uncorr 0.0374) eta 0.502
+  [C seed3 h312] ep20 train 0.3566 val 0.1211 mse 0.0716 (uncorr 0.0374) eta 0.502
+  [C seed3 h312] ep21 train 0.3643 val 0.1173 mse 0.0707 (uncorr 0.0374) eta 0.502
+  [C seed3 h312] ep22 train 0.3004 val 0.1131 mse 0.0673 (uncorr 0.0374) eta 0.502
+  [C seed3 h312] ep23 train 0.3361 val 0.1136 mse 0.0677 (uncorr 0.0374) eta 0.502
+  [C seed3 h312] ep24 train 0.3248 val 0.1131 mse 0.0671 (uncorr 0.0374) eta 0.502
+  [C seed3 h312] ep25 train 0.3546 val 0.1146 mse 0.0684 (uncorr 0.0374) eta 0.502
+  [C seed3 h312] ep26 train 0.2885 val 0.1104 mse 0.0651 (uncorr 0.0374) eta 0.502
+  [C seed3 h312] ep27 train 0.2637 val 0.1104 mse 0.0648 (uncorr 0.0374) eta 0.502
+  [C seed3 h312] ep28 train 0.3318 val 0.1097 mse 0.0642 (uncorr 0.0374) eta 0.502
+  [C seed3 h312] ep29 train 0.3432 val 0.1099 mse 0.0647 (uncorr 0.0374) eta 0.502
+  [C seed3 h312] ep30 train 0.3241 val 0.1099 mse 0.0644 (uncorr 0.0374) eta 0.502
+  [C seed3 h312] ep31 train 0.3516 val 0.1093 mse 0.0643 (uncorr 0.0374) eta 0.502
+  [C seed3 h312] ep32 train 0.2782 val 0.1088 mse 0.0638 (uncorr 0.0374) eta 0.502
+  [C seed3 h312] ep33 train 0.2981 val 0.1084 mse 0.0635 (uncorr 0.0374) eta 0.502
+  [C seed3 h312] ep34 train 0.3021 val 0.1081 mse 0.0633 (uncorr 0.0374) eta 0.502
+  [C seed3 h312] ep35 train 0.2949 val 0.1080 mse 0.0632 (uncorr 0.0374) eta 0.502
+  [C seed3 h312] ep36 train 0.3525 val 0.1079 mse 0.0631 (uncorr 0.0374) eta 0.502
+  [C seed3 h312] ep37 train 0.2961 val 0.1079 mse 0.0632 (uncorr 0.0374) eta 0.502
+  [C seed3 h312] ep38 train 0.3079 val 0.1079 mse 0.0632 (uncorr 0.0374) eta 0.502
+  [C seed3 h312] ep39 train 0.3801 val 0.1079 mse 0.0632 (uncorr 0.0374) eta 0.502
+PC 3 {'exact': 81.2, 'cell': 98.59697153201022} 12.0
+FULL 3 {'exact': 81.2, 'cell': 98.59697153201022} 12.0
+ALL DONE

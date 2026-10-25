@@ -1,0 +1,243 @@
+levels [1, 2, 4, 6, 9, 13, 18, 26, 37, 50, 67, 89] d 256 gen params 25457600
+== baseline (test)
+{'scores': {'exact': 99.46666666666667, 'cell': 99.98436213991769}, 'levels': 12.0, 'ms_per_batch': 3354.309225416666, 'ms_per_batch_std': 236.39832190726818, 'total_s': 40.251710704999994, 'peak_mb': 3820.96240234375, 'frozen_frac': 0.0, 'per_level': [{'exact': 0.0, 'cell': 14.886419753086418}, {'exact': 0.0, 'cell': 14.880658436213992}, {'exact': 0.0, 'cell': 17.1440329218107}, {'exact': 0.0, 'cell': 20.753086419753085}, {'exact': 0.0, 'cell': 20.539094650205758}, {'exact': 0.0, 'cell': 28.95637860082304}, {'exact': 0.0, 'cell': 36.28641975308642}, {'exact': 0.0, 'cell': 49.2962962962963}, {'exact': 0.0, 'cell': 65.21975308641976}, {'exact': 0.0, 'cell': 81.67654320987656}, {'exact': 0.0, 'cell': 86.62551440329219}, {'exact': 99.46666666666667, 'cell': 99.98436213991769}]}
+flops/sample by levels {2: 9846725632.0, 3: 14812208128.0, 4: 19885202432.0, 5: 25119710208.0, 6: 30570028032.0, 7: 36290845696.0, 8: 42446167040.0, 9: 49202355200.0, 10: 56673770496.0, 11: 65088838656.0, 12: 74739162112.0}
+== tau sweep on TRAIN split (baseline, flux & stability)
+selected halting {'mode': 'flux', 'tau': 0.01, 'kmin': 2}
+== halting-only (test)
+{'scores': {'exact': 99.46666666666667, 'cell': 99.98436213991769}, 'levels': 12.0, 'ms_per_batch': 4194.980472916659, 'ms_per_batch_std': 379.8486551902524, 'total_s': 50.33976567499991, 'peak_mb': 2037.62841796875, 'frozen_frac': 0.0}
+== test tau sweep, baseline
+== building corrector training set from TRAIN split rollouts + code corruption
+train set {'prefix': (500, 91), 'y': (500, 89), 'zg': (500, 12, 89, 256), 'zr': (500, 12, 89, 256), 'zc': (2, 500, 12, 89, 256)} 18.6s
+== seed 42
+  [C seed42 h312] ep0 train 2.5829 val 0.1308 mse 0.0698 (uncorr 0.0698) eta 0.500
+  [C seed42 h312] ep1 train 6.9381 val 0.1568 mse 0.0743 (uncorr 0.0698) eta 0.500
+  [C seed42 h312] ep2 train 3.7350 val 0.1351 mse 0.0735 (uncorr 0.0698) eta 0.500
+  [C seed42 h312] ep3 train 3.1866 val 0.1564 mse 0.0804 (uncorr 0.0698) eta 0.500
+  [C seed42 h312] ep4 train 3.3637 val 0.1345 mse 0.0711 (uncorr 0.0698) eta 0.500
+  [C seed42 h312] ep5 train 1.5890 val 0.1417 mse 0.0793 (uncorr 0.0698) eta 0.501
+  [C seed42 h312] ep6 train 0.9206 val 0.1339 mse 0.0775 (uncorr 0.0698) eta 0.500
+  [C seed42 h312] ep7 train 1.0919 val 0.1425 mse 0.0832 (uncorr 0.0698) eta 0.501
+  [C seed42 h312] ep8 train 0.9460 val 0.1482 mse 0.0883 (uncorr 0.0698) eta 0.501
+  [C seed42 h312] ep9 train 0.9750 val 0.1831 mse 0.0938 (uncorr 0.0698) eta 0.501
+  [C seed42 h312] ep10 train 0.4557 val 0.1434 mse 0.0841 (uncorr 0.0698) eta 0.501
+  [C seed42 h312] ep11 train 0.5327 val 0.1421 mse 0.0832 (uncorr 0.0698) eta 0.501
+  [C seed42 h312] ep12 train 0.3364 val 0.1439 mse 0.0812 (uncorr 0.0698) eta 0.501
+  [C seed42 h312] ep13 train 1.0460 val 0.1328 mse 0.0775 (uncorr 0.0698) eta 0.500
+  [C seed42 h312] ep14 train 0.2642 val 0.1274 mse 0.0745 (uncorr 0.0698) eta 0.500
+  [C seed42 h312] ep15 train 0.3613 val 0.1225 mse 0.0714 (uncorr 0.0698) eta 0.500
+  [C seed42 h312] ep16 train 0.3813 val 0.1250 mse 0.0719 (uncorr 0.0698) eta 0.500
+  [C seed42 h312] ep17 train 0.3219 val 0.1220 mse 0.0709 (uncorr 0.0698) eta 0.500
+  [C seed42 h312] ep18 train 0.2473 val 0.1220 mse 0.0705 (uncorr 0.0698) eta 0.500
+  [C seed42 h312] ep19 train 0.5899 val 0.1233 mse 0.0712 (uncorr 0.0698) eta 0.500
+  [C seed42 h312] ep20 train 0.1805 val 0.1226 mse 0.0705 (uncorr 0.0698) eta 0.500
+  [C seed42 h312] ep21 train 0.4152 val 0.1237 mse 0.0706 (uncorr 0.0698) eta 0.500
+  [C seed42 h312] ep22 train 0.2598 val 0.1195 mse 0.0687 (uncorr 0.0698) eta 0.500
+  [C seed42 h312] ep23 train 0.1234 val 0.1174 mse 0.0678 (uncorr 0.0698) eta 0.500
+  [C seed42 h312] ep24 train 0.3835 val 0.1189 mse 0.0678 (uncorr 0.0698) eta 0.500
+  [C seed42 h312] ep25 train 0.1800 val 0.1185 mse 0.0679 (uncorr 0.0698) eta 0.500
+  [C seed42 h312] ep26 train 0.3588 val 0.1246 mse 0.0719 (uncorr 0.0698) eta 0.500
+  [C seed42 h312] ep27 train 0.2939 val 0.1231 mse 0.0708 (uncorr 0.0698) eta 0.500
+  [C seed42 h312] ep28 train 0.1703 val 0.1213 mse 0.0689 (uncorr 0.0698) eta 0.500
+  [C seed42 h312] ep29 train 0.1717 val 0.1209 mse 0.0686 (uncorr 0.0698) eta 0.500
+  [C seed42 h312] ep30 train 0.1250 val 0.1196 mse 0.0683 (uncorr 0.0698) eta 0.500
+  [C seed42 h312] ep31 train 0.2424 val 0.1197 mse 0.0685 (uncorr 0.0698) eta 0.500
+  [C seed42 h312] ep32 train 0.1650 val 0.1200 mse 0.0687 (uncorr 0.0698) eta 0.500
+  [C seed42 h312] ep33 train 0.3097 val 0.1203 mse 0.0689 (uncorr 0.0698) eta 0.500
+  [C seed42 h312] ep34 train 0.2033 val 0.1206 mse 0.0691 (uncorr 0.0698) eta 0.500
+  [C seed42 h312] ep35 train 0.2788 val 0.1206 mse 0.0691 (uncorr 0.0698) eta 0.500
+  [C seed42 h312] ep36 train 0.2010 val 0.1207 mse 0.0691 (uncorr 0.0698) eta 0.500
+  [C seed42 h312] ep37 train 0.2603 val 0.1207 mse 0.0691 (uncorr 0.0698) eta 0.500
+  [C seed42 h312] ep38 train 0.2763 val 0.1207 mse 0.0691 (uncorr 0.0698) eta 0.500
+  [C seed42 h312] ep39 train 0.3106 val 0.1207 mse 0.0691 (uncorr 0.0698) eta 0.500
+  [C seed42] best epoch 23 (-1 = identity) val 0.1174
+  per-level eta scale (decode path): [0.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.5, 0.5, 0.5, 0.0]
+  closed-loop eta-scale calibration on 100 val items: {0.0: 97.0, 0.25: 97.0, 0.5: 97.0, 1.0: 97.0} -> [0.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.5, 0.5, 0.5, 0.0]
+selected halting (APC) {'mode': 'flux', 'tau': 0.01, 'kmin': 2}
+PC 42 {'exact': 99.46666666666667, 'cell': 99.98436213991769} 12.0
+FULL 42 {'exact': 99.46666666666667, 'cell': 99.98436213991769} 12.0
+== seed 0
+  [C seed0 h312] ep0 train 9.0309 val 0.1072 mse 0.0566 (uncorr 0.0565) eta 0.500
+  [C seed0 h312] ep1 train 3.5260 val 0.1217 mse 0.0595 (uncorr 0.0565) eta 0.500
+  [C seed0 h312] ep2 train 2.9484 val 0.1111 mse 0.0603 (uncorr 0.0565) eta 0.500
+  [C seed0 h312] ep3 train 2.5935 val 0.1067 mse 0.0559 (uncorr 0.0565) eta 0.500
+  [C seed0 h312] ep4 train 1.5745 val 0.1008 mse 0.0554 (uncorr 0.0565) eta 0.500
+  [C seed0 h312] ep5 train 2.7295 val 0.1032 mse 0.0559 (uncorr 0.0565) eta 0.500
+  [C seed0 h312] ep6 train 1.2188 val 0.1097 mse 0.0593 (uncorr 0.0565) eta 0.500
+  [C seed0 h312] ep7 train 0.6106 val 0.1045 mse 0.0604 (uncorr 0.0565) eta 0.500
+  [C seed0 h312] ep8 train 1.3619 val 0.1187 mse 0.0667 (uncorr 0.0565) eta 0.500
+  [C seed0 h312] ep9 train 0.7408 val 0.1136 mse 0.0673 (uncorr 0.0565) eta 0.500
+  [C seed0 h312] ep10 train 0.3817 val 0.1103 mse 0.0643 (uncorr 0.0565) eta 0.500
+  [C seed0 h312] ep11 train 0.7696 val 0.1249 mse 0.0721 (uncorr 0.0565) eta 0.500
+  [C seed0 h312] ep12 train 0.4468 val 0.1214 mse 0.0722 (uncorr 0.0565) eta 0.500
+  [C seed0 h312] ep13 train 1.2301 val 0.1201 mse 0.0694 (uncorr 0.0565) eta 0.500
+  [C seed0 h312] ep14 train 0.4833 val 0.1174 mse 0.0690 (uncorr 0.0565) eta 0.500
+  [C seed0 h312] ep15 train 0.4772 val 0.1053 mse 0.0622 (uncorr 0.0565) eta 0.499
+  [C seed0 h312] ep16 train 0.3533 val 0.1086 mse 0.0623 (uncorr 0.0565) eta 0.499
+  [C seed0 h312] ep17 train 0.5042 val 0.1032 mse 0.0601 (uncorr 0.0565) eta 0.499
+  [C seed0 h312] ep18 train 0.4584 val 0.1008 mse 0.0586 (uncorr 0.0565) eta 0.499
+  [C seed0 h312] ep19 train 0.3312 val 0.0991 mse 0.0574 (uncorr 0.0565) eta 0.499
+  [C seed0 h312] ep20 train 0.3655 val 0.1017 mse 0.0593 (uncorr 0.0565) eta 0.499
+  [C seed0 h312] ep21 train 0.3846 val 0.1008 mse 0.0587 (uncorr 0.0565) eta 0.499
+  [C seed0 h312] ep22 train 0.3880 val 0.1033 mse 0.0594 (uncorr 0.0565) eta 0.499
+  [C seed0 h312] ep23 train 0.3643 val 0.1056 mse 0.0611 (uncorr 0.0565) eta 0.499
+  [C seed0 h312] ep24 train 0.3976 val 0.1054 mse 0.0616 (uncorr 0.0565) eta 0.499
+  [C seed0 h312] ep25 train 0.2877 val 0.1030 mse 0.0600 (uncorr 0.0565) eta 0.499
+  [C seed0 h312] ep26 train 0.2947 val 0.1039 mse 0.0598 (uncorr 0.0565) eta 0.499
+  [C seed0 h312] ep27 train 0.2261 val 0.1025 mse 0.0592 (uncorr 0.0565) eta 0.499
+  [C seed0 h312] ep28 train 0.2105 val 0.1057 mse 0.0605 (uncorr 0.0565) eta 0.499
+  [C seed0 h312] ep29 train 0.3673 val 0.1035 mse 0.0594 (uncorr 0.0565) eta 0.499
+  [C seed0 h312] ep30 train 0.1289 val 0.1013 mse 0.0584 (uncorr 0.0565) eta 0.499
+  [C seed0 h312] ep31 train 0.2299 val 0.0998 mse 0.0578 (uncorr 0.0565) eta 0.499
+  [C seed0 h312] ep32 train 0.2116 val 0.0992 mse 0.0576 (uncorr 0.0565) eta 0.499
+  [C seed0 h312] ep33 train 0.2066 val 0.0996 mse 0.0579 (uncorr 0.0565) eta 0.499
+  [C seed0 h312] ep34 train 0.2461 val 0.1000 mse 0.0582 (uncorr 0.0565) eta 0.499
+  [C seed0 h312] ep35 train 0.1682 val 0.1005 mse 0.0585 (uncorr 0.0565) eta 0.499
+  [C seed0 h312] ep36 train 0.2387 val 0.1006 mse 0.0585 (uncorr 0.0565) eta 0.499
+  [C seed0 h312] ep37 train 0.1997 val 0.1006 mse 0.0585 (uncorr 0.0565) eta 0.499
+  [C seed0 h312] ep38 train 0.3150 val 0.1006 mse 0.0585 (uncorr 0.0565) eta 0.499
+  [C seed0 h312] ep39 train 0.1652 val 0.1006 mse 0.0585 (uncorr 0.0565) eta 0.499
+  [C seed0] best epoch 19 (-1 = identity) val 0.0991
+  per-level eta scale (decode path): [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.5, 0.0, 0.25, 0.5, 0.0]
+  closed-loop eta-scale calibration on 100 val items: {0.0: 100.0, 0.25: 100.0, 0.5: 100.0, 1.0: 100.0} -> [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.5, 0.0, 0.25, 0.5, 0.0]
+PC 0 {'exact': 99.46666666666667, 'cell': 99.98436213991769} 12.0
+FULL 0 {'exact': 99.46666666666667, 'cell': 99.98436213991769} 12.0
+== seed 1
+  [C seed1 h312] ep0 train 4.9994 val 0.1308 mse 0.0663 (uncorr 0.0664) eta 0.500
+  [C seed1 h312] ep1 train 5.7221 val 0.1557 mse 0.0711 (uncorr 0.0664) eta 0.500
+  [C seed1 h312] ep2 train 2.0682 val 0.1317 mse 0.0684 (uncorr 0.0664) eta 0.500
+  [C seed1 h312] ep3 train 2.5856 val 0.1304 mse 0.0697 (uncorr 0.0664) eta 0.500
+  [C seed1 h312] ep4 train 2.7656 val 0.1294 mse 0.0673 (uncorr 0.0664) eta 0.500
+  [C seed1 h312] ep5 train 1.6749 val 0.1324 mse 0.0717 (uncorr 0.0664) eta 0.501
+  [C seed1 h312] ep6 train 0.9773 val 0.1327 mse 0.0764 (uncorr 0.0664) eta 0.501
+  [C seed1 h312] ep7 train 1.2709 val 0.1512 mse 0.0881 (uncorr 0.0664) eta 0.501
+  [C seed1 h312] ep8 train 0.8684 val 0.1600 mse 0.0938 (uncorr 0.0664) eta 0.501
+  [C seed1 h312] ep9 train 0.7138 val 0.1379 mse 0.0799 (uncorr 0.0664) eta 0.501
+  [C seed1 h312] ep10 train 0.8676 val 0.1362 mse 0.0767 (uncorr 0.0664) eta 0.500
+  [C seed1 h312] ep11 train 0.5389 val 0.1277 mse 0.0725 (uncorr 0.0664) eta 0.500
+  [C seed1 h312] ep12 train 0.6386 val 0.1246 mse 0.0703 (uncorr 0.0664) eta 0.500
+  [C seed1 h312] ep13 train 0.4656 val 0.1214 mse 0.0692 (uncorr 0.0664) eta 0.500
+  [C seed1 h312] ep14 train 0.3251 val 0.1236 mse 0.0689 (uncorr 0.0664) eta 0.500
+  [C seed1 h312] ep15 train 0.4893 val 0.1199 mse 0.0679 (uncorr 0.0664) eta 0.500
+  [C seed1 h312] ep16 train 0.4269 val 0.1178 mse 0.0655 (uncorr 0.0664) eta 0.500
+  [C seed1 h312] ep17 train 0.4167 val 0.1159 mse 0.0660 (uncorr 0.0664) eta 0.500
+  [C seed1 h312] ep18 train 0.3005 val 0.1139 mse 0.0646 (uncorr 0.0664) eta 0.500
+  [C seed1 h312] ep19 train 0.4763 val 0.1206 mse 0.0689 (uncorr 0.0664) eta 0.500
+  [C seed1 h312] ep20 train 0.3520 val 0.1206 mse 0.0672 (uncorr 0.0664) eta 0.500
+  [C seed1 h312] ep21 train 0.3743 val 0.1230 mse 0.0697 (uncorr 0.0664) eta 0.500
+  [C seed1 h312] ep22 train 0.2492 val 0.1183 mse 0.0661 (uncorr 0.0664) eta 0.500
+  [C seed1 h312] ep23 train 0.3963 val 0.1214 mse 0.0678 (uncorr 0.0664) eta 0.500
+  [C seed1 h312] ep24 train 0.2570 val 0.1201 mse 0.0672 (uncorr 0.0664) eta 0.500
+  [C seed1 h312] ep25 train 0.3823 val 0.1176 mse 0.0654 (uncorr 0.0664) eta 0.500
+  [C seed1 h312] ep26 train 0.3544 val 0.1221 mse 0.0686 (uncorr 0.0664) eta 0.500
+  [C seed1 h312] ep27 train 0.2092 val 0.1192 mse 0.0668 (uncorr 0.0664) eta 0.500
+  [C seed1 h312] ep28 train 0.2826 val 0.1201 mse 0.0673 (uncorr 0.0664) eta 0.500
+  [C seed1 h312] ep29 train 0.2731 val 0.1198 mse 0.0674 (uncorr 0.0664) eta 0.500
+  [C seed1 h312] ep30 train 0.2354 val 0.1193 mse 0.0667 (uncorr 0.0664) eta 0.500
+  [C seed1 h312] ep31 train 0.2284 val 0.1193 mse 0.0665 (uncorr 0.0664) eta 0.500
+  [C seed1 h312] ep32 train 0.1559 val 0.1190 mse 0.0663 (uncorr 0.0664) eta 0.500
+  [C seed1 h312] ep33 train 0.1954 val 0.1186 mse 0.0662 (uncorr 0.0664) eta 0.500
+  [C seed1 h312] ep34 train 0.1929 val 0.1183 mse 0.0661 (uncorr 0.0664) eta 0.500
+  [C seed1 h312] ep35 train 0.2310 val 0.1183 mse 0.0661 (uncorr 0.0664) eta 0.500
+  [C seed1 h312] ep36 train 0.1576 val 0.1182 mse 0.0661 (uncorr 0.0664) eta 0.500
+  [C seed1 h312] ep37 train 0.1215 val 0.1182 mse 0.0661 (uncorr 0.0664) eta 0.500
+  [C seed1 h312] ep38 train 0.3004 val 0.1182 mse 0.0661 (uncorr 0.0664) eta 0.500
+  [C seed1 h312] ep39 train 0.1970 val 0.1182 mse 0.0661 (uncorr 0.0664) eta 0.500
+  [C seed1] best epoch 18 (-1 = identity) val 0.1139
+  per-level eta scale (decode path): [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.5, 0.5, 0.5, 0.5, 0.0]
+  closed-loop eta-scale calibration on 100 val items: {0.0: 99.0, 0.25: 99.0, 0.5: 99.0, 1.0: 99.0} -> [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.5, 0.5, 0.5, 0.5, 0.0]
+PC 1 {'exact': 99.46666666666667, 'cell': 99.98436213991769} 12.0
+FULL 1 {'exact': 99.46666666666667, 'cell': 99.98436213991769} 12.0
+== seed 2
+  [C seed2 h312] ep0 train 3.9748 val 0.1312 mse 0.0691 (uncorr 0.0691) eta 0.500
+  [C seed2 h312] ep1 train 3.6470 val 0.1374 mse 0.0707 (uncorr 0.0691) eta 0.500
+  [C seed2 h312] ep2 train 2.9609 val 0.1385 mse 0.0752 (uncorr 0.0691) eta 0.500
+  [C seed2 h312] ep3 train 2.3721 val 0.1235 mse 0.0684 (uncorr 0.0691) eta 0.500
+  [C seed2 h312] ep4 train 3.6203 val 0.1272 mse 0.0684 (uncorr 0.0691) eta 0.500
+  [C seed2 h312] ep5 train 3.8693 val 0.1468 mse 0.0756 (uncorr 0.0691) eta 0.501
+  [C seed2 h312] ep6 train 1.8487 val 0.1822 mse 0.1067 (uncorr 0.0691) eta 0.501
+  [C seed2 h312] ep7 train 0.7181 val 0.1653 mse 0.1004 (uncorr 0.0691) eta 0.501
+  [C seed2 h312] ep8 train 0.4117 val 0.1388 mse 0.0823 (uncorr 0.0691) eta 0.501
+  [C seed2 h312] ep9 train 0.6381 val 0.1524 mse 0.0875 (uncorr 0.0691) eta 0.501
+  [C seed2 h312] ep10 train 0.4705 val 0.1364 mse 0.0804 (uncorr 0.0691) eta 0.501
+  [C seed2 h312] ep11 train 0.5221 val 0.1281 mse 0.0740 (uncorr 0.0691) eta 0.500
+  [C seed2 h312] ep12 train 0.9734 val 0.1396 mse 0.0807 (uncorr 0.0691) eta 0.500
+  [C seed2 h312] ep13 train 0.6407 val 0.1302 mse 0.0747 (uncorr 0.0691) eta 0.500
+  [C seed2 h312] ep14 train 0.7293 val 0.1575 mse 0.0873 (uncorr 0.0691) eta 0.500
+  [C seed2 h312] ep15 train 0.5721 val 0.1329 mse 0.0750 (uncorr 0.0691) eta 0.500
+  [C seed2 h312] ep16 train 0.5668 val 0.1285 mse 0.0739 (uncorr 0.0691) eta 0.500
+  [C seed2 h312] ep17 train 0.5661 val 0.1274 mse 0.0731 (uncorr 0.0691) eta 0.500
+  [C seed2 h312] ep18 train 0.3105 val 0.1269 mse 0.0738 (uncorr 0.0691) eta 0.500
+  [C seed2 h312] ep19 train 0.2969 val 0.1250 mse 0.0718 (uncorr 0.0691) eta 0.500
+  [C seed2 h312] ep20 train 0.3763 val 0.1229 mse 0.0703 (uncorr 0.0691) eta 0.500
+  [C seed2 h312] ep21 train 0.2940 val 0.1222 mse 0.0706 (uncorr 0.0691) eta 0.500
+  [C seed2 h312] ep22 train 0.1791 val 0.1203 mse 0.0692 (uncorr 0.0691) eta 0.500
+  [C seed2 h312] ep23 train 0.1682 val 0.1191 mse 0.0684 (uncorr 0.0691) eta 0.500
+  [C seed2 h312] ep24 train 0.2103 val 0.1222 mse 0.0703 (uncorr 0.0691) eta 0.500
+  [C seed2 h312] ep25 train 0.2852 val 0.1234 mse 0.0698 (uncorr 0.0691) eta 0.500
+  [C seed2 h312] ep26 train 0.2006 val 0.1215 mse 0.0689 (uncorr 0.0691) eta 0.500
+  [C seed2 h312] ep27 train 0.3425 val 0.1204 mse 0.0685 (uncorr 0.0691) eta 0.500
+  [C seed2 h312] ep28 train 0.3576 val 0.1250 mse 0.0700 (uncorr 0.0691) eta 0.500
+  [C seed2 h312] ep29 train 0.3764 val 0.1240 mse 0.0704 (uncorr 0.0691) eta 0.500
+  [C seed2 h312] ep30 train 0.2128 val 0.1224 mse 0.0697 (uncorr 0.0691) eta 0.500
+  [C seed2 h312] ep31 train 0.1200 val 0.1212 mse 0.0691 (uncorr 0.0691) eta 0.500
+  [C seed2 h312] ep32 train 0.3775 val 0.1223 mse 0.0697 (uncorr 0.0691) eta 0.500
+  [C seed2 h312] ep33 train 0.2406 val 0.1231 mse 0.0701 (uncorr 0.0691) eta 0.500
+  [C seed2 h312] ep34 train 0.2409 val 0.1231 mse 0.0702 (uncorr 0.0691) eta 0.500
+  [C seed2 h312] ep35 train 0.1941 val 0.1227 mse 0.0700 (uncorr 0.0691) eta 0.500
+  [C seed2 h312] ep36 train 0.2322 val 0.1224 mse 0.0699 (uncorr 0.0691) eta 0.500
+  [C seed2 h312] ep37 train 0.2318 val 0.1223 mse 0.0698 (uncorr 0.0691) eta 0.500
+  [C seed2 h312] ep38 train 0.1957 val 0.1222 mse 0.0698 (uncorr 0.0691) eta 0.500
+  [C seed2 h312] ep39 train 0.2781 val 0.1222 mse 0.0698 (uncorr 0.0691) eta 0.500
+  [C seed2] best epoch 23 (-1 = identity) val 0.1191
+  per-level eta scale (decode path): [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.5, 0.5, 0.5, 0.0]
+  closed-loop eta-scale calibration on 100 val items: {0.0: 100.0, 0.25: 100.0, 0.5: 100.0, 1.0: 100.0} -> [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.5, 0.5, 0.5, 0.0]
+PC 2 {'exact': 99.46666666666667, 'cell': 99.98436213991769} 12.0
+FULL 2 {'exact': 99.46666666666667, 'cell': 99.98436213991769} 12.0
+== seed 3
+  [C seed3 h312] ep0 train 3.9741 val 0.2214 mse 0.1017 (uncorr 0.1018) eta 0.500
+  [C seed3 h312] ep1 train 2.4908 val 0.2183 mse 0.1017 (uncorr 0.1018) eta 0.500
+  [C seed3 h312] ep2 train 3.0908 val 0.2213 mse 0.1079 (uncorr 0.1018) eta 0.500
+  [C seed3 h312] ep3 train 3.9638 val 0.1889 mse 0.0961 (uncorr 0.1018) eta 0.500
+  [C seed3 h312] ep4 train 0.8849 val 0.1844 mse 0.0958 (uncorr 0.1018) eta 0.500
+  [C seed3 h312] ep5 train 0.7324 val 0.1761 mse 0.0965 (uncorr 0.1018) eta 0.500
+  [C seed3 h312] ep6 train 1.7865 val 0.1782 mse 0.0949 (uncorr 0.1018) eta 0.500
+  [C seed3 h312] ep7 train 0.9982 val 0.1767 mse 0.0992 (uncorr 0.1018) eta 0.500
+  [C seed3 h312] ep8 train 1.6751 val 0.2227 mse 0.1265 (uncorr 0.1018) eta 0.501
+  [C seed3 h312] ep9 train 0.6686 val 0.2110 mse 0.1168 (uncorr 0.1018) eta 0.501
+  [C seed3 h312] ep10 train 0.4912 val 0.1838 mse 0.1012 (uncorr 0.1018) eta 0.500
+  [C seed3 h312] ep11 train 0.3328 val 0.1752 mse 0.0966 (uncorr 0.1018) eta 0.500
+  [C seed3 h312] ep12 train 0.7299 val 0.1740 mse 0.0981 (uncorr 0.1018) eta 0.500
+  [C seed3 h312] ep13 train 0.4864 val 0.1760 mse 0.0950 (uncorr 0.1018) eta 0.500
+  [C seed3 h312] ep14 train 1.3122 val 0.1799 mse 0.1001 (uncorr 0.1018) eta 0.500
+  [C seed3 h312] ep15 train 0.5351 val 0.1712 mse 0.0952 (uncorr 0.1018) eta 0.500
+  [C seed3 h312] ep16 train 0.3283 val 0.1676 mse 0.0955 (uncorr 0.1018) eta 0.500
+  [C seed3 h312] ep17 train 0.3511 val 0.1591 mse 0.0908 (uncorr 0.1018) eta 0.500
+  [C seed3 h312] ep18 train 0.4610 val 0.1688 mse 0.0916 (uncorr 0.1018) eta 0.500
+  [C seed3 h312] ep19 train 0.3560 val 0.1677 mse 0.0918 (uncorr 0.1018) eta 0.500
+  [C seed3 h312] ep20 train 0.2532 val 0.1611 mse 0.0884 (uncorr 0.1018) eta 0.499
+  [C seed3 h312] ep21 train 0.4912 val 0.1658 mse 0.0906 (uncorr 0.1018) eta 0.500
+  [C seed3 h312] ep22 train 0.3304 val 0.1725 mse 0.0920 (uncorr 0.1018) eta 0.500
+  [C seed3 h312] ep23 train 0.3881 val 0.1706 mse 0.0904 (uncorr 0.1018) eta 0.499
+  [C seed3 h312] ep24 train 0.3104 val 0.1735 mse 0.0917 (uncorr 0.1018) eta 0.500
+  [C seed3 h312] ep25 train 0.2713 val 0.1685 mse 0.0903 (uncorr 0.1018) eta 0.499
+  [C seed3 h312] ep26 train 0.3104 val 0.1720 mse 0.0914 (uncorr 0.1018) eta 0.499
+  [C seed3 h312] ep27 train 0.4001 val 0.1744 mse 0.0923 (uncorr 0.1018) eta 0.499
+  [C seed3 h312] ep28 train 0.2947 val 0.1730 mse 0.0920 (uncorr 0.1018) eta 0.499
+  [C seed3 h312] ep29 train 0.2515 val 0.1701 mse 0.0912 (uncorr 0.1018) eta 0.499
+  [C seed3 h312] ep30 train 0.3172 val 0.1730 mse 0.0920 (uncorr 0.1018) eta 0.499
+  [C seed3 h312] ep31 train 0.3153 val 0.1750 mse 0.0929 (uncorr 0.1018) eta 0.499
+  [C seed3 h312] ep32 train 0.2699 val 0.1748 mse 0.0925 (uncorr 0.1018) eta 0.499
+  [C seed3 h312] ep33 train 0.1954 val 0.1731 mse 0.0919 (uncorr 0.1018) eta 0.499
+  [C seed3 h312] ep34 train 0.2299 val 0.1721 mse 0.0916 (uncorr 0.1018) eta 0.499
+  [C seed3 h312] ep35 train 0.2337 val 0.1713 mse 0.0914 (uncorr 0.1018) eta 0.499
+  [C seed3 h312] ep36 train 0.1557 val 0.1714 mse 0.0914 (uncorr 0.1018) eta 0.499
+  [C seed3 h312] ep37 train 0.1599 val 0.1713 mse 0.0914 (uncorr 0.1018) eta 0.499
+  [C seed3 h312] ep38 train 0.1948 val 0.1713 mse 0.0914 (uncorr 0.1018) eta 0.499
+  [C seed3 h312] ep39 train 0.1603 val 0.1713 mse 0.0914 (uncorr 0.1018) eta 0.499
+  [C seed3] best epoch 17 (-1 = identity) val 0.1591
+  per-level eta scale (decode path): [0.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.5, 0.5, 0.5, 0.0]
+  closed-loop eta-scale calibration on 100 val items: {0.0: 98.0, 0.25: 98.0, 0.5: 98.0, 1.0: 98.0} -> [0.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.5, 0.5, 0.5, 0.0]
+PC 3 {'exact': 99.46666666666667, 'cell': 99.98436213991769} 12.0
+FULL 3 {'exact': 99.46666666666667, 'cell': 99.98436213991769} 12.0
+ALL DONE

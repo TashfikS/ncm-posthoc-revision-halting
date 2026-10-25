@@ -1,0 +1,27 @@
+\begin{table}[t]
+\centering
+\caption{Hyper-parameters. Generator and tokenizer settings are those of the official evaluation configs.}
+\label{tab:hp}
+\footnotesize\setlength{\tabcolsep}{2.5pt}
+\begin{tabular}{lccc}
+\toprule
+ & Sudoku & WMT14 & XSum\\
+\midrule
+levels $K$ & 12 & 11 & 9\\
+$L$, $d$ & 89, 256 & 64, 768 & 48, 768\\
+generator params & 25.5M & 120.0M & 88.0M\\
+$C_\omega$ params (width) & 1.23M & 1.20M & 1.20M\\
+train / test items & 500 / 1500 & 1000 / 2003 & 500 / 1000\\
+epochs & 40 & 20 & 30\\
+batch (train / eval) & 32 / 128 & 32 / 64 & 32 / 32\\
+optimizer & \multicolumn{3}{c}{AdamW~\citep{loshchilov2019adamw}, lr $3{\times}10^{-4}$, wd 0.01, one-cycle, clip 1.0}\\
+$\alpha$ (KL weight) & \multicolumn{3}{c}{0.1}\\
+$\eta_k$ init / scale grid & \multicolumn{3}{c}{$\sigma(\beta_k)=0.5$ / $s\in\{0,0.25,0.5,1\}$}\\
+rollout / corruption mix & \multicolumn{3}{c}{0.75 / 0.25 (2 corrupted copies, $u\sim\mathcal{U}(0,1)$)}\\
+$\tau$ grid, $k_{\min}$ & \multicolumn{3}{c}{\{0.01,0.03,0.05,0.10,0.15\}, 2}\\
+$\tau_{\mathrm{tok}}$ grid & \multicolumn{3}{c}{\{0.005,0.01,0.02,0.05\}}\\
+selection tolerance & \multicolumn{3}{c}{0.5 points of full-depth quality}\\
+seeds & \multicolumn{3}{c}{42, 0, 1, 2, 3}\\
+\bottomrule
+\end{tabular}
+\end{table}

@@ -1,0 +1,202 @@
+OFFICIAL: /usr/bin/python3 /tmp/ncm_workspace/ncm/evaluate.py --config /tmp/ncm_workspace/ncm/config/eval/xsum.yaml --checkpoint-dir /tmp/ncm_workspace/ck/xsum --data-dir /tmp/ncm_workspace/data/xsum --out /kaggle/working/results/xsum/official --gpus 0 --n 1500
+[evaluate] 1 shard(s) on GPU(s) 0 -> /kaggle/working/results/xsum/official/
+
+merged 1 shards -> 1500 xsum outputs
+
+    R-1     R-2     R-L   genPPL   words
+  34.68   12.55   27.69    80.27    20.9
+
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+WARNING:huggingface_hub.utils._http:Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+
+Loading weights:   0%|          | 0/148 [00:00<?, ?it/s]
+Loading weights: 100%|██████████| 148/148 [00:00<00:00, 2702.86it/s]
+
+levels [4, 6, 10, 14, 20, 26, 32, 40, 48] d 384 gen params 88015881
+== baseline (test)
+{'scores': {'rouge1': 34.61522611404874, 'rouge2': 12.40894141725838, 'rougeL': 27.615222236945147}, 'levels': 9.0, 'ms_per_batch': 10323.739587031276, 'ms_per_batch_std': 1384.4435484548487, 'total_s': 330.3596667850008, 'peak_mb': 5691.71337890625, 'frozen_frac': 0.0, 'per_level': [{'rouge1': 25.302905667026664, 'rouge2': 3.3183548762357677, 'rougeL': 19.22373355482429}, {'rouge1': 28.55259645289534, 'rouge2': 5.5496846719119555, 'rougeL': 21.70075293964857}, {'rouge1': 29.954634502227222, 'rouge2': 7.299436904222964, 'rougeL': 22.98163274953805}, {'rouge1': 30.50753827755533, 'rouge2': 8.06493000977646, 'rougeL': 23.59725214125452}, {'rouge1': 31.058586525211485, 'rouge2': 9.286167325192421, 'rougeL': 24.48521428582482}, {'rouge1': 31.783797018200644, 'rouge2': 10.219320102461115, 'rougeL': 25.39735685598355}, {'rouge1': 32.74814424912876, 'rouge2': 10.89506262987926, 'rougeL': 26.08433445900569}, {'rouge1': 33.141074614434956, 'rouge2': 11.268790767162614, 'rougeL': 26.40559137254738}, {'rouge1': 34.61522611404874, 'rouge2': 12.40894141725838, 'rougeL': 27.615222236945147}]}
+flops/sample by levels {2: 197827313664.0, 3: 296629665792.0, 4: 396283330560.0, 5: 497216176128.0, 6: 599430856704.0, 7: 702930026496.0, 8: 808145977344.0, 9: 915083427840.0}
+== tau sweep on TRAIN split (baseline, flux & stability)
+flux 0.01 {'rouge1': 34.616293728513895, 'rouge2': 12.952582157510353, 'rougeL': 27.701680477174918} 9.0
+flux 0.03 {'rouge1': 34.616293728513895, 'rouge2': 12.952582157510353, 'rougeL': 27.701680477174918} 9.0
+flux 0.05 {'rouge1': 34.616293728513895, 'rouge2': 12.952582157510353, 'rougeL': 27.701680477174918} 9.0
+flux 0.1 {'rouge1': 34.616293728513895, 'rouge2': 12.952582157510353, 'rougeL': 27.701680477174918} 9.0
+flux 0.15 {'rouge1': 34.616293728513895, 'rouge2': 12.952582157510353, 'rougeL': 27.701680477174918} 9.0
+stab 0.01 {'rouge1': 34.616293728513895, 'rouge2': 12.952582157510353, 'rougeL': 27.701680477174918} 9.0
+stab 0.03 {'rouge1': 34.616293728513895, 'rouge2': 12.952582157510353, 'rougeL': 27.701680477174918} 9.0
+stab 0.05 {'rouge1': 34.616293728513895, 'rouge2': 12.952582157510353, 'rougeL': 27.701680477174918} 9.0
+stab 0.1 {'rouge1': 34.616293728513895, 'rouge2': 12.952582157510353, 'rougeL': 27.701680477174918} 9.0
+stab 0.15 {'rouge1': 34.09037826164458, 'rouge2': 12.224739548839489, 'rougeL': 27.10985983874107} 8.36
+selected halting {'mode': 'flux', 'tau': 0.01, 'kmin': 2}
+== halting-only (test)
+{'scores': {'rouge1': 34.61522611404874, 'rouge2': 12.40894141725838, 'rougeL': 27.615222236945147}, 'levels': 9.0, 'ms_per_batch': 10302.591122718768, 'ms_per_batch_std': 1372.4736822017544, 'total_s': 329.6829159270006, 'peak_mb': 7051.09814453125, 'frozen_frac': 0.0}
+== test tau sweep, baseline
+== building corrector training set from TRAIN split rollouts + code corruption
+train set {'prefix': (500, 512), 'y': (500, 48), 'zg': (500, 8, 48, 384), 'zr': (500, 8, 48, 384), 'zc': (2, 500, 8, 48, 384)} 166.4s
+== seed 42
+  [C seed42 h292] ep0 train 12.2426 val 6.4741 mse 2.3248 (uncorr 2.3247) eta 0.500
+  [C seed42 h292] ep1 train 13.9741 val 6.0454 mse 2.4077 (uncorr 2.3247) eta 0.500
+  [C seed42 h292] ep2 train 12.4945 val 6.1461 mse 2.3525 (uncorr 2.3247) eta 0.501
+  [C seed42 h292] ep3 train 12.8560 val 5.5409 mse 2.3490 (uncorr 2.3247) eta 0.501
+  [C seed42 h292] ep4 train 11.7313 val 5.5614 mse 2.3080 (uncorr 2.3247) eta 0.501
+  [C seed42 h292] ep5 train 10.6100 val 4.9748 mse 2.2800 (uncorr 2.3247) eta 0.502
+  [C seed42 h292] ep6 train 11.3172 val 4.8272 mse 2.2110 (uncorr 2.3247) eta 0.502
+  [C seed42 h292] ep7 train 10.2646 val 4.7229 mse 2.1618 (uncorr 2.3247) eta 0.503
+  [C seed42 h292] ep8 train 9.9924 val 4.6946 mse 2.1333 (uncorr 2.3247) eta 0.504
+  [C seed42 h292] ep9 train 6.8346 val 4.0943 mse 2.0578 (uncorr 2.3247) eta 0.505
+  [C seed42 h292] ep10 train 10.0918 val 4.2139 mse 2.0225 (uncorr 2.3247) eta 0.506
+  [C seed42 h292] ep11 train 10.8230 val 3.9477 mse 1.9727 (uncorr 2.3247) eta 0.507
+  [C seed42 h292] ep12 train 10.2789 val 4.0526 mse 1.9397 (uncorr 2.3247) eta 0.508
+  [C seed42 h292] ep13 train 8.5797 val 4.1332 mse 1.8926 (uncorr 2.3247) eta 0.509
+  [C seed42 h292] ep14 train 9.4581 val 4.0509 mse 1.8721 (uncorr 2.3247) eta 0.510
+  [C seed42 h292] ep15 train 8.1499 val 3.9396 mse 1.8522 (uncorr 2.3247) eta 0.511
+  [C seed42 h292] ep16 train 10.2689 val 3.9888 mse 1.8309 (uncorr 2.3247) eta 0.511
+  [C seed42 h292] ep17 train 8.6001 val 4.0955 mse 1.8182 (uncorr 2.3247) eta 0.512
+  [C seed42 h292] ep18 train 10.3537 val 4.0596 mse 1.8109 (uncorr 2.3247) eta 0.513
+  [C seed42 h292] ep19 train 8.4119 val 3.8869 mse 1.7961 (uncorr 2.3247) eta 0.513
+  [C seed42 h292] ep20 train 6.8311 val 3.9231 mse 1.7812 (uncorr 2.3247) eta 0.513
+  [C seed42 h292] ep21 train 7.3780 val 3.9930 mse 1.7695 (uncorr 2.3247) eta 0.514
+  [C seed42 h292] ep22 train 7.3504 val 3.8753 mse 1.7633 (uncorr 2.3247) eta 0.514
+  [C seed42 h292] ep23 train 7.5077 val 3.7954 mse 1.7578 (uncorr 2.3247) eta 0.514
+  [C seed42 h292] ep24 train 9.1679 val 3.8414 mse 1.7538 (uncorr 2.3247) eta 0.514
+  [C seed42 h292] ep25 train 8.7408 val 3.9764 mse 1.7532 (uncorr 2.3247) eta 0.514
+  [C seed42 h292] ep26 train 7.6388 val 3.7947 mse 1.7528 (uncorr 2.3247) eta 0.514
+  [C seed42 h292] ep27 train 6.7423 val 3.9018 mse 1.7515 (uncorr 2.3247) eta 0.514
+  [C seed42 h292] ep28 train 8.0510 val 3.8036 mse 1.7509 (uncorr 2.3247) eta 0.514
+  [C seed42 h292] ep29 train 7.9642 val 3.7318 mse 1.7508 (uncorr 2.3247) eta 0.514
+selected halting (APC) {'mode': 'stab', 'tau': 0.05, 'kmin': 2}
+PC 42 {'rouge1': 6.780238309121876, 'rouge2': 1.1751498684193011, 'rougeL': 6.2722631561925795} 9.0
+FULL 42 {'rouge1': 6.598435531749149, 'rouge2': 1.1265129172909312, 'rougeL': 6.121734036108855} 8.8
+== seed 0
+  [C seed0 h292] ep0 train 13.9452 val 6.8036 mse 2.2130 (uncorr 2.2131) eta 0.500
+  [C seed0 h292] ep1 train 15.3980 val 6.3562 mse 2.2987 (uncorr 2.2131) eta 0.501
+  [C seed0 h292] ep2 train 11.7938 val 5.8680 mse 2.2679 (uncorr 2.2131) eta 0.501
+  [C seed0 h292] ep3 train 10.6800 val 5.4295 mse 2.2629 (uncorr 2.2131) eta 0.501
+  [C seed0 h292] ep4 train 10.7495 val 5.3313 mse 2.2182 (uncorr 2.2131) eta 0.501
+  [C seed0 h292] ep5 train 10.5512 val 5.2058 mse 2.1644 (uncorr 2.2131) eta 0.502
+  [C seed0 h292] ep6 train 10.2830 val 4.7186 mse 2.1299 (uncorr 2.2131) eta 0.502
+  [C seed0 h292] ep7 train 9.9399 val 4.6695 mse 2.0726 (uncorr 2.2131) eta 0.503
+  [C seed0 h292] ep8 train 11.3519 val 4.5450 mse 2.0372 (uncorr 2.2131) eta 0.504
+  [C seed0 h292] ep9 train 8.6390 val 4.4201 mse 1.9800 (uncorr 2.2131) eta 0.505
+  [C seed0 h292] ep10 train 9.6983 val 4.3711 mse 1.9345 (uncorr 2.2131) eta 0.506
+  [C seed0 h292] ep11 train 9.2232 val 4.1007 mse 1.8891 (uncorr 2.2131) eta 0.507
+  [C seed0 h292] ep12 train 9.3201 val 4.0060 mse 1.8541 (uncorr 2.2131) eta 0.508
+  [C seed0 h292] ep13 train 10.3263 val 4.3072 mse 1.8248 (uncorr 2.2131) eta 0.509
+  [C seed0 h292] ep14 train 10.2566 val 4.0699 mse 1.8061 (uncorr 2.2131) eta 0.510
+  [C seed0 h292] ep15 train 8.6559 val 4.0549 mse 1.7783 (uncorr 2.2131) eta 0.511
+  [C seed0 h292] ep16 train 9.8265 val 4.0583 mse 1.7765 (uncorr 2.2131) eta 0.512
+  [C seed0 h292] ep17 train 8.2449 val 4.1248 mse 1.7523 (uncorr 2.2131) eta 0.512
+  [C seed0 h292] ep18 train 7.9371 val 4.1181 mse 1.7371 (uncorr 2.2131) eta 0.513
+  [C seed0 h292] ep19 train 8.5411 val 4.2688 mse 1.7375 (uncorr 2.2131) eta 0.513
+  [C seed0 h292] ep20 train 7.1739 val 4.1850 mse 1.7140 (uncorr 2.2131) eta 0.513
+  [C seed0 h292] ep21 train 9.1229 val 3.9916 mse 1.7121 (uncorr 2.2131) eta 0.514
+  [C seed0 h292] ep22 train 6.9547 val 3.8781 mse 1.7040 (uncorr 2.2131) eta 0.514
+  [C seed0 h292] ep23 train 8.3341 val 4.1662 mse 1.7010 (uncorr 2.2131) eta 0.514
+  [C seed0 h292] ep24 train 7.9795 val 3.9731 mse 1.6964 (uncorr 2.2131) eta 0.514
+  [C seed0 h292] ep25 train 8.2501 val 3.9817 mse 1.6941 (uncorr 2.2131) eta 0.514
+  [C seed0 h292] ep26 train 9.1795 val 3.7874 mse 1.6941 (uncorr 2.2131) eta 0.514
+  [C seed0 h292] ep27 train 6.7808 val 3.9046 mse 1.6932 (uncorr 2.2131) eta 0.514
+  [C seed0 h292] ep28 train 8.5546 val 3.9441 mse 1.6930 (uncorr 2.2131) eta 0.514
+  [C seed0 h292] ep29 train 8.0129 val 3.8583 mse 1.6930 (uncorr 2.2131) eta 0.514
+PC 0 {'rouge1': 6.751488033163944, 'rouge2': 1.0625076139628546, 'rougeL': 6.359144406966963} 9.0
+FULL 0 {'rouge1': 6.669660397198377, 'rouge2': 1.0551002065554471, 'rougeL': 6.288745342429966} 8.96
+== seed 1
+  [C seed1 h292] ep0 train 16.8018 val 6.6676 mse 2.2109 (uncorr 2.2109) eta 0.500
+  [C seed1 h292] ep1 train 11.7191 val 5.9231 mse 2.2745 (uncorr 2.2109) eta 0.500
+  [C seed1 h292] ep2 train 12.1926 val 5.9909 mse 2.2530 (uncorr 2.2109) eta 0.501
+  [C seed1 h292] ep3 train 12.6820 val 5.8817 mse 2.2156 (uncorr 2.2109) eta 0.501
+  [C seed1 h292] ep4 train 10.6115 val 5.0232 mse 2.2009 (uncorr 2.2109) eta 0.501
+  [C seed1 h292] ep5 train 10.5708 val 4.9648 mse 2.1589 (uncorr 2.2109) eta 0.502
+  [C seed1 h292] ep6 train 10.6169 val 4.3564 mse 2.1250 (uncorr 2.2109) eta 0.503
+  [C seed1 h292] ep7 train 8.9115 val 4.4718 mse 2.0870 (uncorr 2.2109) eta 0.504
+  [C seed1 h292] ep8 train 10.2691 val 4.1815 mse 2.0380 (uncorr 2.2109) eta 0.504
+  [C seed1 h292] ep9 train 10.3638 val 4.2882 mse 1.9989 (uncorr 2.2109) eta 0.505
+  [C seed1 h292] ep10 train 11.0349 val 4.3679 mse 1.9709 (uncorr 2.2109) eta 0.507
+  [C seed1 h292] ep11 train 7.6882 val 4.3685 mse 1.9232 (uncorr 2.2109) eta 0.508
+  [C seed1 h292] ep12 train 11.9571 val 4.0214 mse 1.8862 (uncorr 2.2109) eta 0.509
+  [C seed1 h292] ep13 train 8.6028 val 4.1824 mse 1.8534 (uncorr 2.2109) eta 0.510
+  [C seed1 h292] ep14 train 8.8059 val 3.9900 mse 1.8294 (uncorr 2.2109) eta 0.511
+  [C seed1 h292] ep15 train 8.9061 val 4.0912 mse 1.8222 (uncorr 2.2109) eta 0.511
+  [C seed1 h292] ep16 train 7.4234 val 3.6192 mse 1.7882 (uncorr 2.2109) eta 0.512
+  [C seed1 h292] ep17 train 9.3925 val 4.0430 mse 1.7709 (uncorr 2.2109) eta 0.512
+  [C seed1 h292] ep18 train 9.3134 val 3.6738 mse 1.7654 (uncorr 2.2109) eta 0.513
+  [C seed1 h292] ep19 train 7.9978 val 3.7845 mse 1.7593 (uncorr 2.2109) eta 0.513
+  [C seed1 h292] ep20 train 7.8473 val 3.9088 mse 1.7423 (uncorr 2.2109) eta 0.513
+  [C seed1 h292] ep21 train 8.8129 val 4.0904 mse 1.7348 (uncorr 2.2109) eta 0.514
+  [C seed1 h292] ep22 train 8.3593 val 3.9085 mse 1.7322 (uncorr 2.2109) eta 0.514
+  [C seed1 h292] ep23 train 7.4023 val 3.8497 mse 1.7265 (uncorr 2.2109) eta 0.514
+  [C seed1 h292] ep24 train 9.2314 val 3.8884 mse 1.7268 (uncorr 2.2109) eta 0.514
+  [C seed1 h292] ep25 train 8.9765 val 3.9873 mse 1.7225 (uncorr 2.2109) eta 0.514
+  [C seed1 h292] ep26 train 7.5872 val 3.6818 mse 1.7218 (uncorr 2.2109) eta 0.514
+  [C seed1 h292] ep27 train 8.4993 val 3.7471 mse 1.7219 (uncorr 2.2109) eta 0.514
+  [C seed1 h292] ep28 train 7.4298 val 3.9590 mse 1.7214 (uncorr 2.2109) eta 0.514
+  [C seed1 h292] ep29 train 9.6610 val 3.8783 mse 1.7214 (uncorr 2.2109) eta 0.514
+PC 1 {'rouge1': 6.709769259524895, 'rouge2': 1.2593028450567656, 'rougeL': 6.347736381906328} 9.0
+FULL 1 {'rouge1': 6.671446567723942, 'rouge2': 1.2521599879139085, 'rougeL': 6.309413690105376} 8.992
+== seed 2
+  [C seed2 h292] ep0 train 13.7672 val 6.6198 mse 2.2422 (uncorr 2.2423) eta 0.500
+  [C seed2 h292] ep1 train 13.7542 val 5.9604 mse 2.3385 (uncorr 2.2423) eta 0.500
+  [C seed2 h292] ep2 train 12.9817 val 5.9786 mse 2.2952 (uncorr 2.2423) eta 0.501
+  [C seed2 h292] ep3 train 11.9642 val 5.4156 mse 2.2674 (uncorr 2.2423) eta 0.501
+  [C seed2 h292] ep4 train 12.4463 val 5.5902 mse 2.2155 (uncorr 2.2423) eta 0.501
+  [C seed2 h292] ep5 train 11.8345 val 5.1478 mse 2.1710 (uncorr 2.2423) eta 0.502
+  [C seed2 h292] ep6 train 13.2540 val 4.7386 mse 2.1191 (uncorr 2.2423) eta 0.503
+  [C seed2 h292] ep7 train 11.3903 val 4.3626 mse 2.0777 (uncorr 2.2423) eta 0.504
+  [C seed2 h292] ep8 train 10.2163 val 4.3821 mse 2.0377 (uncorr 2.2423) eta 0.505
+  [C seed2 h292] ep9 train 10.8922 val 4.1358 mse 1.9936 (uncorr 2.2423) eta 0.506
+  [C seed2 h292] ep10 train 9.2893 val 4.1813 mse 1.9516 (uncorr 2.2423) eta 0.507
+  [C seed2 h292] ep11 train 7.7565 val 4.1793 mse 1.9026 (uncorr 2.2423) eta 0.508
+  [C seed2 h292] ep12 train 9.1040 val 4.0422 mse 1.8616 (uncorr 2.2423) eta 0.509
+  [C seed2 h292] ep13 train 9.4368 val 3.9650 mse 1.8373 (uncorr 2.2423) eta 0.510
+  [C seed2 h292] ep14 train 8.5579 val 3.6849 mse 1.8085 (uncorr 2.2423) eta 0.511
+  [C seed2 h292] ep15 train 7.3323 val 3.8067 mse 1.7767 (uncorr 2.2423) eta 0.512
+  [C seed2 h292] ep16 train 7.5352 val 3.8855 mse 1.7505 (uncorr 2.2423) eta 0.512
+  [C seed2 h292] ep17 train 9.7373 val 3.9742 mse 1.7443 (uncorr 2.2423) eta 0.513
+  [C seed2 h292] ep18 train 9.0078 val 3.6932 mse 1.7420 (uncorr 2.2423) eta 0.513
+  [C seed2 h292] ep19 train 9.2985 val 3.7849 mse 1.7312 (uncorr 2.2423) eta 0.514
+  [C seed2 h292] ep20 train 8.1432 val 3.7795 mse 1.7284 (uncorr 2.2423) eta 0.514
+  [C seed2 h292] ep21 train 8.4710 val 3.8616 mse 1.7123 (uncorr 2.2423) eta 0.514
+  [C seed2 h292] ep22 train 7.7263 val 3.7030 mse 1.7099 (uncorr 2.2423) eta 0.515
+  [C seed2 h292] ep23 train 8.6819 val 3.9146 mse 1.7049 (uncorr 2.2423) eta 0.515
+  [C seed2 h292] ep24 train 9.0117 val 3.9286 mse 1.7055 (uncorr 2.2423) eta 0.515
+  [C seed2 h292] ep25 train 7.8352 val 3.8360 mse 1.7019 (uncorr 2.2423) eta 0.515
+  [C seed2 h292] ep26 train 7.7231 val 3.5975 mse 1.6996 (uncorr 2.2423) eta 0.515
+  [C seed2 h292] ep27 train 7.5320 val 3.6600 mse 1.6989 (uncorr 2.2423) eta 0.515
+  [C seed2 h292] ep28 train 6.6095 val 3.8760 mse 1.6989 (uncorr 2.2423) eta 0.515
+  [C seed2 h292] ep29 train 6.4325 val 3.6110 mse 1.6989 (uncorr 2.2423) eta 0.515
+PC 2 {'rouge1': 6.586385152370075, 'rouge2': 1.029461259041419, 'rougeL': 6.2225978198324565} 9.0
+FULL 2 {'rouge1': 6.586385152370075, 'rouge2': 1.029461259041419, 'rougeL': 6.2225978198324565} 9.0
+== seed 3
+  [C seed3 h292] ep0 train 12.7978 val 6.8601 mse 2.3748 (uncorr 2.3751) eta 0.500
+  [C seed3 h292] ep1 train 13.8906 val 6.1586 mse 2.4733 (uncorr 2.3751) eta 0.501
+  [C seed3 h292] ep2 train 14.0894 val 6.1869 mse 2.4132 (uncorr 2.3751) eta 0.500
+  [C seed3 h292] ep3 train 9.1897 val 5.6797 mse 2.4292 (uncorr 2.3751) eta 0.501
+  [C seed3 h292] ep4 train 11.1861 val 5.6012 mse 2.3688 (uncorr 2.3751) eta 0.501
+  [C seed3 h292] ep5 train 11.9310 val 5.2903 mse 2.3251 (uncorr 2.3751) eta 0.501
+  [C seed3 h292] ep6 train 11.1777 val 4.9914 mse 2.2734 (uncorr 2.3751) eta 0.502
+  [C seed3 h292] ep7 train 10.8512 val 4.6027 mse 2.2290 (uncorr 2.3751) eta 0.503
+  [C seed3 h292] ep8 train 10.8301 val 4.6046 mse 2.1667 (uncorr 2.3751) eta 0.504
+  [C seed3 h292] ep9 train 9.0192 val 4.5363 mse 2.1109 (uncorr 2.3751) eta 0.505
+  [C seed3 h292] ep10 train 9.8654 val 4.5020 mse 2.0596 (uncorr 2.3751) eta 0.506
+  [C seed3 h292] ep11 train 10.7075 val 4.1024 mse 2.0209 (uncorr 2.3751) eta 0.507
+  [C seed3 h292] ep12 train 10.9734 val 4.5901 mse 1.9884 (uncorr 2.3751) eta 0.508
+  [C seed3 h292] ep13 train 9.4158 val 4.2424 mse 1.9559 (uncorr 2.3751) eta 0.509
+  [C seed3 h292] ep14 train 8.4334 val 4.5595 mse 1.9196 (uncorr 2.3751) eta 0.510
+  [C seed3 h292] ep15 train 10.7672 val 4.1355 mse 1.9035 (uncorr 2.3751) eta 0.511
+  [C seed3 h292] ep16 train 9.2340 val 3.9800 mse 1.8866 (uncorr 2.3751) eta 0.512
+  [C seed3 h292] ep17 train 9.1265 val 3.9844 mse 1.8673 (uncorr 2.3751) eta 0.512
+  [C seed3 h292] ep18 train 8.7993 val 4.1265 mse 1.8533 (uncorr 2.3751) eta 0.513
+  [C seed3 h292] ep19 train 7.9101 val 4.0670 mse 1.8291 (uncorr 2.3751) eta 0.513
+  [C seed3 h292] ep20 train 7.7241 val 4.0373 mse 1.8233 (uncorr 2.3751) eta 0.513
+  [C seed3 h292] ep21 train 8.3336 val 4.1730 mse 1.8189 (uncorr 2.3751) eta 0.514
+  [C seed3 h292] ep22 train 7.7350 val 3.9337 mse 1.8102 (uncorr 2.3751) eta 0.514
+  [C seed3 h292] ep23 train 8.1113 val 4.0357 mse 1.8073 (uncorr 2.3751) eta 0.514
+  [C seed3 h292] ep24 train 8.3033 val 3.9003 mse 1.8050 (uncorr 2.3751) eta 0.514
+  [C seed3 h292] ep25 train 8.6866 val 3.9644 mse 1.8033 (uncorr 2.3751) eta 0.514
+  [C seed3 h292] ep26 train 6.2280 val 4.0664 mse 1.8003 (uncorr 2.3751) eta 0.514
+  [C seed3 h292] ep27 train 5.5994 val 3.8794 mse 1.7991 (uncorr 2.3751) eta 0.514
+  [C seed3 h292] ep28 train 7.1390 val 3.8924 mse 1.7987 (uncorr 2.3751) eta 0.514
+  [C seed3 h292] ep29 train 8.2238 val 3.9859 mse 1.7986 (uncorr 2.3751) eta 0.514
+PC 3 {'rouge1': 6.410065137589046, 'rouge2': 1.2997199736317395, 'rougeL': 6.0617680045457565} 9.0
+FULL 3 {'rouge1': 6.332589532792235, 'rouge2': 1.2832216571334232, 'rougeL': 6.001435256891802} 8.96
+ALL DONE

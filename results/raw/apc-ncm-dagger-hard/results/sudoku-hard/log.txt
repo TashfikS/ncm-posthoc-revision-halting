@@ -1,0 +1,2 @@
+trainable generator tensors 138 params 25319616
+NCM val {'exact': 84.0, 'cell': 98.12345679012344} test {'exact': 86.66666666666667, 'cell': 98.36049382716048}

@@ -1,0 +1,49 @@
+\section{Proof of Proposition~\ref{prop:contraction}}
+\label{app:p1}
+\textit{Step 1 (drift recursion).} By~\eqref{eq:cum} and~\eqref{eq:pred}, $\zh^{(k)}-\zh^{(k)}_{\mathrm{GT}}=\zh^{(k-1)}-\zh^{(k-1)}_{\mathrm{GT}}+A_k\big(E_k(\hat r_k)-E_k(r_k^\ast)\big)$, i.e., $e^{(k)}=e^{(k-1)}+\epsilon_k$ with $e^{(0)}=0$.
+
+\textit{Step 2 (one-step lower bound).} Let $a=\|e^{(k-1)}\|$ and $b=\|\epsilon_k\|$. By Assumption~\ref{as:coh},
+\begin{equation}
+\|e^{(k)}\|^2=a^2+2\langle e^{(k-1)},\epsilon_k\rangle+b^2\ge a^2+2c_0ab+b^2.
+\end{equation}
+Since $c_0\le1$, $a^2+2c_0ab+b^2\ge a^2+2c_0ab+c_0^2b^2=(a+c_0b)^2$, so $\|e^{(k)}\|\ge\|e^{(k-1)}\|+c_0\|\epsilon_k\|$.
+
+\textit{Step 3 (telescoping).} Summing Step 2 over $k=1,\dots,K$ yields $\|e^{(K)}\|\ge c_0\sum_{k=1}^K\|\epsilon_k\|$. Taking expectations and using $\sigma_k=\mathbb{E}\|\epsilon_k\|$ gives~\eqref{eq:lower}.
+
+\textit{Step 4 (size of $\sigma_k$).} $E_k(\hat r_k)-E_k(r_k^\ast)$ has at most $m_k$ non-zero rows, each of norm at most $\mathrm{diam}(\mathcal{V}_k)=\max_{v,v'}\|e_{k,v}-e_{k,v'}\|$; hence its Frobenius norm is at most $\sqrt{m_k}\,\mathrm{diam}(\mathcal{V}_k)\le m_k\,\mathrm{diam}(\mathcal{V}_k)$, and Assumption~\ref{as:lip} gives $\|\epsilon_k\|\le L_p m_k\mathrm{diam}(\mathcal{V}_k)$. Note that $\Up_k$ replicates each coarse row over about $L/\ell_k$ fine rows; for linear interpolation $\|\Up_k\|_{\mathrm{op}}\le\sqrt{\lceil L/\ell_k\rceil}$, so $L_p$ is largest at coarse levels, which is the broadcast effect described in Section~IV-A.
+
+\textit{Step 5 (corrected recursion).} With the in-loop corrector, $\zt^{(k)}=\mathcal{C}_k\big(\zt^{(k-1)}+A_kE_k(\hat r_k)\big)$, where $\hat r_k$ are the codes produced by the generator when it is conditioned on $\zt^{(k-1)}$, and $\epsilon_k=A_k(E_k(\hat r_k)-E_k(r^\ast_k))$ with $\sigma_k=\mathbb{E}\|\epsilon_k\|$ for this process. Using $\zh^{(k)}_{\mathrm{GT}}=\zh^{(k-1)}_{\mathrm{GT}}+A_kE_k(r^\ast_k)$ from~\eqref{eq:cum},
+\begin{align}
+&\zt^{(k-1)}+A_kE_k(\hat r_k)-\zh^{(k)}_{\mathrm{GT}}\nonumber\\
+&\quad=\big(\zt^{(k-1)}-\zh^{(k-1)}_{\mathrm{GT}}\big)+A_k\big(E_k(\hat r_k)-E_k(r^\ast_k)\big)\nonumber\\
+&\quad=\tilde e^{(k-1)}+\epsilon_k.
+\end{align}
+Assumption~\ref{as:corr} (valid because the iterate stays in the radius-$R$ ball) then gives
+\begin{align}
+V_k&\le(1-\gamma_k)\|\tilde e^{(k-1)}+\epsilon_k\|+\epsilon_{\mathrm{corr}}\nonumber\\
+&\le(1-\gamma_k)(V_{k-1}+\|\epsilon_k\|)+\epsilon_{\mathrm{corr}}.
+\end{align}
+
+\textit{Step 6 (unrolling).} We claim $V_k\le\sum_{i=1}^{k}\big(\prod_{j=i}^{k}(1-\gamma_j)\big)\|\epsilon_i\|+\epsilon_{\mathrm{corr}}\sum_{i=1}^{k}\prod_{j=i+1}^{k}(1-\gamma_j)$, with the empty product equal to 1. For $k=1$, $V_0=0$ gives $V_1\le(1-\gamma_1)\|\epsilon_1\|+\epsilon_{\mathrm{corr}}$. If the claim holds for $k-1$, inserting it into Step 5 and multiplying out by $(1-\gamma_k)$ gives the claim for $k$. Taking expectations at $k=K$ yields~\eqref{eq:upper}.
+
+\textit{Step 7 (uniform bound).} If $\gamma_j\ge\gamma$ and $\sigma_k\le\bar\sigma$, then $\prod_{j=i}^{K}(1-\gamma_j)\le(1-\gamma)^{K-i+1}$ and $\sum_{i=1}^{K}(1-\gamma)^{K-i+1}\le(1-\gamma)/\gamma$, $\sum_{i=1}^{K}(1-\gamma)^{K-i}\le1/\gamma$. Hence $\mathbb{E}V_K\le\bar\sigma(1-\gamma)/\gamma+\epsilon_{\mathrm{corr}}/\gamma$. \hfill$\blacksquare$
+
+\textit{Caveat.} Step 5 conditions on the generator's errors \emph{after} correction. If the corrector moves $\zt^{(k-1)}$ off the generator's training distribution, $\sigma_k$ in~\eqref{eq:upper} can be much larger than in the uncorrected process; the bound does not compare the two processes at equal $\sigma_k$. This is the mechanism behind the closed-loop failure in Section~\ref{sec:results}.
+
+\section{Proof of Proposition~\ref{prop:rd}}
+\label{app:p2}
+\textit{Step 1 (Cauchy tail).} By the triangle inequality, $\|\zt^{(K)}-\zt^{(k^\ast)}\|=\|\sum_{j=k^\ast+1}^{K}\Delta\zt^{(j)}\|\le\sum_{j=k^\ast+1}^{K}\|\Delta\zt^{(j)}\|$. Assumption~\ref{as:geo} gives $\|\Delta\zt^{(k^\ast+m)}\|\le\rho^m\|\Delta\zt^{(k^\ast)}\|\le\rho^m\tau$, so the sum is at most $\tau\sum_{m\ge1}\rho^m=\rho\tau/(1-\rho)\le\tau/(1-\rho)$.
+
+\textit{Step 2 (KL between softmaxes).} Let $\Lambda(a)=\log\sum_v e^{a_v}$ and $p_a=\nabla\Lambda(a)=\mathrm{softmax}(a)$. Direct computation gives $\KL(p_a\|p_b)=\Lambda(b)-\Lambda(a)-\langle p_a,b-a\rangle$, the Bregman divergence of $\Lambda$. By Taylor's theorem with integral remainder, $\KL(p_a\|p_b)=\int_0^1(1-s)\,h^\top\nabla^2\Lambda(a+sh)\,h\,ds$ with $h=b-a$. Since $\nabla^2\Lambda(c)=\mathrm{diag}(p_c)-p_cp_c^\top$, $h^\top\nabla^2\Lambda(c)h=\mathrm{Var}_{v\sim p_c}(h_v)\le\mathbb{E}_{p_c}h_v^2\le\|h\|_\infty^2\le\|h\|_2^2$. Therefore $\KL(p_a\|p_b)\le\frac12\|a-b\|_2^2$.
+
+\textit{Step 3 (sum over positions).} Applying Step 2 to every position $t$ with $a_t=f(\zt^{(K)})_t$ and $b_t=f(\zt^{(k^\ast)})_t$ and summing, $\sum_t\KL\le\frac12\|f(\zt^{(K)})-f(\zt^{(k^\ast)})\|_F^2\le\frac{L_D^2}{2}\|\zt^{(K)}-\zt^{(k^\ast)}\|^2$ by Assumption~\ref{as:dec}. Inserting Step 1 gives $\sum_t\KL\le L_D^2\tau^2/(2(1-\rho)^2)$. \hfill$\blacksquare$
+
+\textit{Step 4 (argmax preservation).} By Pinsker's inequality, $\mathrm{TV}_t\le\sqrt{\KL^{(t)}/2}\le L_D\tau/(2(1-\rho))$ at every position, where $\KL^{(t)}$ is the KL divergence at position $t$. If the full-depth distribution has top-1 margin $\mu_t=p_{(1)}-p_{(2)}>2\,\mathrm{TV}_t$, the top-1 token cannot change, so the halted output equals the full-depth output at position $t$.
+
+\section{Reproducibility details}
+\label{app:repro}
+\textit{Harness.} The official \texttt{generate()} is executed unmodified. We wrap \texttt{MultiscaleResidualVectorQuantizer.}\allowbreak\texttt{get\_next\_autoregressive\_input}, which \texttt{generate()} calls once per level, to (i) record $\zh^{(k)}$, (ii) apply $C_\omega$, (iii) apply token freezing, and (iv) raise an exception that unwinds the official loop when the halting test fires. Without a corrector, halting or freezing, the wrapped sampler reproduces the official \texttt{eval\_shard.py} latent exactly (maximum absolute difference $0.0$ and identical code indices on Sudoku-hard). The output of the final level is formed as in \texttt{idx\_to\_zhats}. Decoded token ids are converted to strings with the official \texttt{dec()} and, for XSum, the official frequency-penalized \texttt{pick\_tokens()}.
+
+\textit{Metrics.} Sudoku exact match and cell accuracy reproduce \texttt{eval\_merge.exact}; BLEU~\citep{papineni2002bleu} is \texttt{sacrebleu.corpus\_bleu}~\citep{post2018sacrebleu} on detokenized strings; ROUGE uses \texttt{rouge\_score} with stemming~\citep{lin2004rouge}. Paired tests use per-item cell accuracy (Sudoku), sentence BLEU (WMT14) or ROUGE-L (XSum) for the Wilcoxon signed-rank test~\citep{wilcoxon1945}, the exact McNemar test~\citep{mcnemar1947} on per-board solved indicators, and a one-sample $t$-test of the five seed means against the deterministic baseline.
+
+\textit{FLOPs.} FLOPs per sequence are measured with \texttt{torch.utils.flop\_counter.FlopCounterMode} on one batch of the evaluation set for every possible number of executed levels, including the corrector, the decoder and, for halting, the criterion evaluation; the per-configuration value is read at the mean number of executed levels.

@@ -1,0 +1,54 @@
+\begin{table*}[t]
+\centering
+\caption{Main comparison on official NCM checkpoints (single Tesla T4). Quality: Sudoku boards solved (\%), WMT14 corpus BLEU, XSum ROUGE-L, on held-out test items (Sudoku 1{,}500, WMT14 2{,}003, XSum 1{,}000). Learned rows: mean$\pm$std over seeds \{42,0,1,2,3\}. $\bar k$: mean levels executed. GFLOPs: per evaluation batch, measured. ms: wall-clock per batch (Sudoku 128, WMT14 64, XSum 32 sequences). MB: peak allocated GPU memory. $p_W$: smallest paired Wilcoxon $p$ over seeds vs.\ NCM (per-item cell acc./sentence BLEU/ROUGE-L). $p_2$: smallest exact McNemar $p$ on solved boards (Sudoku) or one-sample $t$-test of seed means (text). ``no sel.'': trained without validation checkpoint and step-size selection.}
+\label{tab:main}
+\setlength{\tabcolsep}{3.2pt}
+\begin{tabular}{llccccccc}
+\toprule
+ & Method & Quality & $\bar k$ & GFLOPs & ms & MB & $p_W$ & $p_2$\\
+\midrule
+\multirow{8}{*}{\rotatebox{90}{\scriptsize Sudoku-easy}} & NCM (official) & 99.47 & 12.0 & 74.7 & 3426 & 3821 & -- & --\\
+ & + halting & 99.47 & 12.0 & 74.7 & 3485 & 4030 & 1.0 & --\\
+ & $C_\omega$ (in-loop, no sel.) & 58.17$\pm$9.05 & 12.00 & 77.2 & 3639 & 4091 & $<$$10^{-4}$ & $<$$10^{-4}$\\
+ & $C_\omega$+halt (in-loop, no sel.) & 58.17$\pm$9.05 & 12.00 & 77.2 & 3634 & 5595 & $<$$10^{-4}$ & $<$$10^{-4}$\\
+ & $C_\omega$ (in-loop, val.-sel.) & 99.47$\pm$0.00 & 12.00 & 77.2 & 3678 & 4231 & 0.059 & 1.0\\
+ & $C_\omega$+halt (in-loop, val.-sel.) & 99.47$\pm$0.00 & 12.00 & 77.2 & 3697 & 5464 & 0.059 & 1.0\\
+ & $C_\omega$ (decode-path) & 99.47$\pm$0.00 & 12.00 & 77.5 & 4314 & 4685 & 1.0 & 1.0\\
+ & $C_\omega$+halt (decode-path) & 99.47$\pm$0.00 & 12.00 & 77.5 & 4315 & 5074 & 1.0 & 1.0\\
+\midrule
+\multirow{8}{*}{\rotatebox{90}{\scriptsize Sudoku-medium}} & NCM (official) & 96.00 & 12.0 & 74.7 & 3436 & 3821 & -- & --\\
+ & + halting & 96.00 & 12.0 & 74.7 & 3482 & 4029 & 1.0 & --\\
+ & $C_\omega$ (in-loop, no sel.) & 78.03$\pm$5.52 & 12.00 & 77.2 & 3634 & 4094 & $<$$10^{-4}$ & $<$$10^{-4}$\\
+ & $C_\omega$+halt (in-loop, no sel.) & 78.03$\pm$5.52 & 12.00 & 77.2 & 3630 & 5598 & $<$$10^{-4}$ & $<$$10^{-4}$\\
+ & $C_\omega$ (in-loop, val.-sel.) & 96.00$\pm$0.00 & 12.00 & 77.2 & 3684 & 4960 & 1.0 & 1.0\\
+ & $C_\omega$+halt (in-loop, val.-sel.) & 96.00$\pm$0.00 & 12.00 & 77.2 & 3686 & 4490 & 1.0 & 1.0\\
+ & $C_\omega$ (decode-path) & 96.00$\pm$0.00 & 12.00 & 77.5 & 3903 & 4551 & 1.0 & 1.0\\
+ & $C_\omega$+halt (decode-path) & 96.00$\pm$0.00 & 12.00 & 77.5 & 3902 & 5181 & 1.0 & 1.0\\
+\midrule
+\multirow{8}{*}{\rotatebox{90}{\scriptsize Sudoku-hard}} & NCM (official) & 86.67 & 12.0 & 74.7 & 3436 & 3821 & -- & --\\
+ & + halting & 86.67 & 12.0 & 74.7 & 3481 & 3837 & 1.0 & --\\
+ & $C_\omega$ (in-loop, no sel.) & 24.19$\pm$11.72 & 12.00 & 77.2 & 3637 & 5090 & $<$$10^{-4}$ & $<$$10^{-4}$\\
+ & $C_\omega$+halt (in-loop, no sel.) & 24.19$\pm$11.72 & 12.00 & 77.2 & 3631 & 4053 & $<$$10^{-4}$ & $<$$10^{-4}$\\
+ & $C_\omega$ (in-loop, val.-sel.) & 86.79$\pm$0.17 & 12.00 & 77.2 & 3679 & 5323 & 0.221 & 0.454\\
+ & $C_\omega$+halt (in-loop, val.-sel.) & 86.79$\pm$0.17 & 12.00 & 77.2 & 3697 & 4085 & 0.221 & 0.454\\
+ & $C_\omega$ (decode-path) & 86.67$\pm$0.00 & 12.00 & 77.5 & 3915 & 4644 & 1.0 & 1.0\\
+ & $C_\omega$+halt (decode-path) & 86.67$\pm$0.00 & 12.00 & 77.5 & 3908 & 4660 & 1.0 & 1.0\\
+\midrule
+\multirow{8}{*}{\rotatebox{90}{\scriptsize WMT14 De--En}} & NCM (official) & 22.35 & 11.0 & 249.4 & 6204 & 8196 & -- & --\\
+ & + halting & 22.35 & 11.0 & 249.4 & 6196 & 7106 & 1.0 & --\\
+ & $C_\omega$ (in-loop, no sel.) & 0.21$\pm$0.10 & 11.00 & 251.1 & 6260 & 8144 & $<$$10^{-4}$ & $<$$10^{-4}$\\
+ & $C_\omega$+halt (in-loop, no sel.) & 0.09$\pm$0.08 & 10.66 & 251.1 & 8562 & 7281 & $<$$10^{-4}$ & $<$$10^{-4}$\\
+ & $C_\omega$ (in-loop, val.-sel.) & 22.35$\pm$0.00 & 11.00 & 251.1 & 6203 & 8144 & 1.0 & 1.0\\
+ & $C_\omega$+halt (in-loop, val.-sel.) & 22.35$\pm$0.00 & 11.00 & 251.1 & 6216 & 7139 & 1.0 & 1.0\\
+ & $C_\omega$ (decode-path) & 22.35$\pm$0.00 & 11.00 & 251.3 & 6024 & 8038 & 1.0 & 1.0\\
+ & $C_\omega$+halt (decode-path) & 22.35$\pm$0.00 & 11.00 & 251.3 & 6025 & 7274 & 1.0 & 1.0\\
+\midrule
+\multirow{6}{*}{\rotatebox{90}{\scriptsize XSum}} & NCM (official) & 27.62 & 9.0 & 915.1 & 10324 & 5692 & -- & --\\
+ & + halting & 27.62 & 9.0 & 915.1 & 10303 & 7051 & 1.0 & --\\
+ & $C_\omega$ (in-loop, no sel.) & 6.25$\pm$0.12 & 9.00 & 918.3 & 10329 & 7080 & $<$$10^{-4}$ & $<$$10^{-4}$\\
+ & $C_\omega$+halt (in-loop, no sel.) & 6.19$\pm$0.13 & 8.94 & 918.3 & 10477 & 7044 & $<$$10^{-4}$ & $<$$10^{-4}$\\
+ & $C_\omega$ (decode-path) & 27.62$\pm$0.00 & 9.00 & 918.7 & 11839 & 7498 & 1.0 & 1.0\\
+ & $C_\omega$+halt (decode-path) & 27.62$\pm$0.00 & 9.00 & 918.7 & 11862 & 6921 & 1.0 & 1.0\\
+\bottomrule
+\end{tabular}
+\end{table*}
