@@ -2,6 +2,8 @@
 
 Code, results and paper source for *"Why Post-Hoc Latent Revision and Adaptive Halting Fail on Frozen Coarse-to-Fine Language Models: Theoretical Conditions and Empirical Diagnostics"* (under review at TMLR).
 
+**Author:** S M Tasfik Us Salahin
+
 All experiments run the **unmodified** official [HazyResearch/ncm](https://github.com/HazyResearch/ncm) code with the released checkpoints (`hazyresearch/ncm-checkpoints`) and datasets (`hazyresearch/ncm-datasets`) on a single 16 GB T4 GPU.
 
 ## Layout
@@ -50,3 +52,13 @@ No new data are created. Checkpoints and datasets are the public releases `hazyr
 
 ## License
 MIT (this code). The NCM code, checkpoints and datasets are subject to their own licenses.
+
+## Citation
+```bibtex
+@misc{salahin2026posthoc,
+  title  = {Why Post-Hoc Latent Revision and Adaptive Halting Fail on Frozen Coarse-to-Fine Language Models: Theoretical Conditions and Empirical Diagnostics},
+  author = {Salahin, S M Tasfik Us},
+  year   = {2026},
+  note   = {Under review at Transactions on Machine Learning Research}
+}
+```
