@@ -1,0 +1,23 @@
+\begin{table*}[t]
+\centering
+\caption{Scaled re-evaluation on the full official test sets (Sudoku: 1{,}500 held-out boards per difficulty; WMT14: 3{,}003 sentences; XSum: first 1{,}500 articles) with correctors trained on externally sourced, test-disjoint splits (Section~\ref{sec:scaled}). Mean$\pm$std over five seeds; second line, in parentheses: one-sample $t$-test of the seed means against NCM, and the number of seeds significantly better/worse than NCM in a paired test (McNemar for Sudoku, Wilcoxon over sentence-level scores for text; $p<0.05$). Last column: closed-loop step-size scale $s$ selected on validation for each seed (in-loop).}
+\label{tab:v5}
+\small
+\setlength{\tabcolsep}{4pt}
+\resizebox{\textwidth}{!}{\begin{tabular}{lcccccc}
+\toprule
+Task & NCM & In-loop, no sel. & In-loop, val.-sel. & Projection, no sel. & Projection, val.-sel. & selected $s$ \\
+\midrule
+Sudoku-easy & 99.47 & 97.12$\pm$3.68 & 99.49$\pm$0.08 & 99.61$\pm$0.10 & 99.53$\pm$0.12 & 1,0.5,0,0.25,0.25 \\
+ &  & {\scriptsize (0.23; 0/2)} & {\scriptsize (0.48; 0/0)} & {\scriptsize (0.03; 0/0)} & {\scriptsize (0.27; 0/0)} &  \\[2pt]
+Sudoku-medium & 96.00 & 90.77$\pm$6.07 & 96.27$\pm$0.36 & 95.75$\pm$0.24 & 95.92$\pm$0.03 & 0.25,0.25,0.25,0.25,0 \\
+ &  & {\scriptsize (0.13; 0/5)} & {\scriptsize (0.17; 2/0)} & {\scriptsize (0.08; 0/1)} & {\scriptsize (0.004; 0/0)} &  \\[2pt]
+Sudoku-hard & 86.67 & 83.92$\pm$4.07 & 87.00$\pm$0.16 & 86.63$\pm$0.23 & 86.47$\pm$0.00 & 0.5,0.5,0.25,1,0.5 \\
+ &  & {\scriptsize (0.21; 0/2)} & {\scriptsize (0.01; 0/0)} & {\scriptsize (0.72; 0/0)} & {\scriptsize (1.00; 0/0)} &  \\[2pt]
+WMT14 (BLEU) & 21.72 & 1.45$\pm$1.76 & 21.72$\pm$0.00 & 2.52$\pm$0.53 & 15.82$\pm$0.00 & 0,0,0,0,0 \\
+ &  & {\scriptsize ($<\!10^{-4}$; 0/5)} & {\scriptsize (1.00; 0/0)} & {\scriptsize ($<\!10^{-4}$; 0/5)} & {\scriptsize (1.00; 0/5)} &  \\[2pt]
+XSum (R-L) & 27.64 & 11.87$\pm$0.96 & 27.64$\pm$0.00 & 20.07$\pm$0.40 & 27.56$\pm$0.10 & 0,0,0,0,0 \\
+ &  & {\scriptsize ($<\!10^{-4}$; 0/5)} & {\scriptsize (1.00; 0/0)} & {\scriptsize ($<\!10^{-4}$; 0/5)} & {\scriptsize (0.15; 0/0)} &  \\[2pt]
+\bottomrule
+\end{tabular}}
+\end{table*}

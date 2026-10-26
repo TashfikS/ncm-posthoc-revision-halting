@@ -1,0 +1,16 @@
+\begin{table*}[t]
+\centering
+\caption{Generator co-adaptation with 12{,}000 symmetry-augmented training boards (4 DAgger rounds of 1{,}000 fresh boards; checkpoint and corrector selected on 1{,}200 augmented validation boards; 1{,}500 held-out test boards; five seeds). Columns per arm: mean$\pm$std solve rate, one-sample $t$-test of seed means against NCM, smallest per-seed McNemar $p$, and the number of seeds for which validation selection kept the official generator.}
+\label{tab:dagaug}
+\small
+\resizebox{\textwidth}{!}{\begin{tabular}{lc cccc cccc}
+\toprule
+& & \multicolumn{4}{c}{DAgger} & \multicolumn{4}{c}{DAgger + $C_\omega$}\\
+\cmidrule(lr){3-6}\cmidrule(lr){7-10}
+Task & NCM & solved & $t$-test $p$ & min.\ McN.\ $p$ & kept & solved & $t$-test $p$ & min.\ McN.\ $p$ & kept\\
+\midrule
+Sudoku-hard & 86.67 & 87.16$\pm$0.53 & 0.11 & 0.02 & 0/5 & 87.13$\pm$0.53 & 0.12 & 0.07 & 0/5 \\
+Sudoku-medium & 96.00 & 95.71$\pm$0.27 & 0.07 & 0.29 & 2/5 & 95.92$\pm$0.17 & 0.36 & 0.59 & 1/5 \\
+\bottomrule
+\end{tabular}}
+\end{table*}

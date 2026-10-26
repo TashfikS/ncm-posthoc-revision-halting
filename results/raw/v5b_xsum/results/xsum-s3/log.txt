@@ -1,0 +1,16 @@
+splits {'train': 3000, 'val': 998, 'test': 1500}
+NCM val {'rouge1': 34.33133160737935, 'rouge2': 12.683609389935974, 'rougeL': 27.691596839472616} test {'rouge1': 34.61558198553713, 'rouge2': 12.59015499734237, 'rougeL': 27.644041650355067}
+train set {'prefix': (3000, 512), 'y': (3000, 48), 'zg': (3000, 8, 48, 384), 'zr': (3000, 8, 48, 384), 'zc': (2, 3000, 8, 48, 384)}
+  [C seed3 h292] ep0 train 8.9257 val 4.4339 mse 2.0547 (uncorr 2.0367) eta 0.501
+  [C seed3 h292] ep1 train 6.6948 val 3.8166 mse 1.7936 (uncorr 2.0367) eta 0.504
+  [C seed3 h292] ep2 train 5.4952 val 3.5670 mse 1.6185 (uncorr 2.0367) eta 0.508
+  [C seed3 h292] ep3 train 6.2071 val 3.3695 mse 1.5262 (uncorr 2.0367) eta 0.511
+  [C seed3 h292] ep4 train 6.0483 val 3.3549 mse 1.4781 (uncorr 2.0367) eta 0.514
+  [C seed3 h292] ep5 train 4.9440 val 3.3050 mse 1.4477 (uncorr 2.0367) eta 0.516
+  [C seed3 h292] ep6 train 5.4917 val 3.2464 mse 1.4341 (uncorr 2.0367) eta 0.517
+  [C seed3 h292] ep7 train 5.4690 val 3.1968 mse 1.4238 (uncorr 2.0367) eta 0.518
+  [C seed3 h292] ep8 train 4.7734 val 3.2129 mse 1.4199 (uncorr 2.0367) eta 0.518
+  [C seed3 h292] ep9 train 5.3394 val 3.1873 mse 1.4196 (uncorr 2.0367) eta 0.518
+  [C seed3] best epoch 9 (-1 = identity) val 3.1873
+== seed 3 s_loop 0.0 s_proj 0.0 halt flux_0.01 | loop 10.54 loop_sel 27.64 proj 20.13 proj_sel 27.61 sel_halt 27.64 | NCM 27.64
+ALL DONE

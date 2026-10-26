@@ -1,0 +1,132 @@
+\section{Architecture overview}
+\label{app:arch}
+Figure~\ref{fig:arch} contrasts baseline NCM and APC-NCM.
+
+\begin{figure*}[t]
+\centering
+\begin{tikzpicture}[font=\footnotesize, node distance=4mm and 6mm,
+ box/.style={draw, rounded corners=2pt, minimum height=6mm, align=center, fill=white},
+ gen/.style={box, fill=blue!8}, cor/.style={box, fill=orange!18}, dec/.style={box, fill=green!10}, hal/.style={box, fill=red!8, diamond, aspect=2.2, inner sep=1pt},
+ >={Stealth[length=2mm]}]
+\node[font=\bfseries\footnotesize] (tA) at (0,0.9) {(a) Baseline NCM};
+\node[gen] (g0) at (0,0) {$G_\phi$\\level $k$};
+\node[box, right=of g0] (p0) {$\zh^{(k)}=\zh^{(k-1)}$\\$+\Phi_k\Up_k E_k(\hat r_k)$};
+\node[box, right=of p0] (d0) {$\mathrm{Down}_{k+1}$};
+\node[gen, right=of d0] (g1) {$G_\phi$\\level $k{+}1$};
+\node[dec, right=12mm of g1] (o0) {$D_\psi(\zh^{(K-1)})$\\after all $K$ levels};
+\draw[->] (g0) -- node[above]{$\hat r_k$} (p0); \draw[->] (p0) -- (d0); \draw[->] (d0) -- node[above]{$u_{k+1}$} (g1); \draw[->, dashed] (g1) -- node[above]{$\cdots$} (o0);
+\node[font=\bfseries\footnotesize] (tB) at (0,-1.35) {(b) APC-NCM};
+\node[gen] (G0) at (0,-2.3) {$G_\phi$\\level $k$};
+\node[box, right=of G0] (P0) {predictor\\ \eqref{eq:pred}};
+\node[cor, right=of P0] (C0) {corrector $C_\omega$\\ \eqref{eq:corr}};
+\node[hal, right=of C0] (H0) {$\Delta_k{<}\tau$?};
+\node[box, right=of H0] (D0) {$\mathrm{Down}_{k+1}$};
+\node[gen, right=of D0] (G1) {$G_\phi$\\level $k{+}1$};
+\node[dec, below=6mm of H0] (O0) {$D_\psi(\zt^{(k^\ast)})$};
+\node[box, above=3mm of C0, fill=gray!10] (pf) {$h_{\mathrm{prefix}}$, level $k$};
+\draw[->] (G0) -- node[above]{$\hat r_k$} (P0); \draw[->] (P0) -- node[above]{$\zh^{(k)}_{\mathrm{pred}}$} (C0); \draw[->] (C0) -- node[above]{$\zt^{(k)}$} (H0);
+\draw[->] (H0) -- node[above]{no} (D0); \draw[->] (D0) -- (G1); \draw[->] (H0) -- node[right]{yes: halt} (O0); \draw[->] (pf) -- (C0);
+\draw[->, densely dotted, orange!70!black] (P0.south) to[out=-40,in=-140] node[below=9mm, pos=0.5, font=\scriptsize, text=orange!70!black]{decode-path variant: $u_{k+1}$ bypasses $C_\omega$} (D0.south);
+\end{tikzpicture}
+\caption{Baseline NCM (a) adds one quantized residual per level and always runs all $K$ levels. APC-NCM (b) revises the cumulative latent with a learned corrector and may halt once the latent flux (or decoder instability) falls below $\tau$. In the in-loop variant the corrected latent feeds the next generator level; in the decode-path variant (dotted) the generator continues from the uncorrected latent and $C_\omega$ acts only on decoded latents.}
+\label{fig:arch}
+\end{figure*}
+
+\section{Algorithm}
+\label{app:alg}
+Algorithm~\ref{alg:apc} summarizes training and inference.
+
+\begin{algorithm}[t]
+\caption{APC-NCM training and inference}
+\label{alg:apc}
+\begin{algorithmic}[1]
+\Require frozen $E_\theta,D_\psi,\{\mathcal{V}_k,\Phi_k\}$, $G_\phi$; training inputs/references $\{(c_i,y_i)\}_{i\le N_{\mathrm{tr}}}$
+\State \textbf{Training}
+\For{$i=1,\dots,N_{\mathrm{tr}}$}
+  \State $(\zh^{(k)}_{\mathrm{GT}})_k\gets$ \texttt{z\_to\_idx}$(E_\theta(y_i))$;\quad $(\zh^{(k)}_{\mathrm{roll}})_k\gets$ greedy rollout of $G_\phi$ on $c_i$
+  \State $(\zh^{(k)}_{\mathrm{cor}})_k\gets$ cumulative latents of codes corrupted at rate $u\sim\mathcal{U}(0,1)$, level 0 kept
+\EndFor
+\State minimize~\eqref{eq:loss} with AdamW, one-cycle LR; keep best validation epoch (identity included)
+\State choose $s$ (or $s_k$) by closed-loop validation quality; choose rule and $\tau$ on $\{c_i\}$
+\State \textbf{Inference} on a batch of prefixes $c$
+\State $\zh^{(-1)}\gets 0$; sample $\hat r_0$ with $G_\phi$
+\For{$k=0,\dots,K-2$}
+  \State $\zh^{(k)}\gets\zh^{(k-1)}+\Phi_k\Up_kE_k(\hat r_k)$ \Comment{predictor}
+  \State $\zt^{(k)}\gets\zh^{(k)}-\eta_kC_\omega(\zh^{(k)},h_{\mathrm{prefix}},k)$ \Comment{corrector}
+  \If{freezing} copy rows of $\zh^{(k-1)}$ into frozen segments \EndIf
+  \If{$k\ge k_{\min}$ \textbf{and} halting criterion holds for all sequences} \Return $D_\psi(\zt^{(k)})$ \EndIf
+  \State $u_{k+1}\gets\mathrm{Down}_{k+1}(\zt^{(k)})$ (in-loop) or $\mathrm{Down}_{k+1}(\zh^{(k)})$ (decode-path)
+  \State $\hat r_{k+1}\gets\argmax G_\phi(u_{k+1},c)$
+\EndFor
+\State \Return $D_\psi\big(\zh^{(K-2)}{+}\Phi_{K-1}E_{K-1}(\hat r_{K-1})\big)$, corrected at level $K{-}1$ in the decode-path variant
+\end{algorithmic}
+\end{algorithm}
+
+\section{Hardware, profiling and hyper-parameters}
+\label{app:hw}
+\textbf{Hardware and profiling.} Every number comes from Kaggle Tesla T4 (16\,GB, 14.6\,GB usable) sessions with Python 3.13 and the preinstalled PyTorch~\citep{paszke2019pytorch} CUDA build. Wall-clock latency is the mean over evaluation batches after one untimed warm-up batch, synchronized with \texttt{torch.cuda.synchronize}; peak memory is \texttt{torch.cuda.max\_memory\_allocated}. Variants of the same task were timed in the same session. Hyper-parameters are listed in Table~\ref{tab:hp}.
+
+\input{tab_hp.tex}
+
+\section{Small-sample generator co-adaptation}
+\label{app:dag_small}
+\textbf{Closed-loop co-adaptation of the generator.} The remaining option is to adapt the generator to revised trajectories. Table~\ref{tab:dagger} fine-tunes the generator on the 400 training boards with teacher-forced reference states (control), with DAgger~\citep{ross2011dagger} on a 50/50 mix of reference and on-policy rollout states labelled by greedy residual quantization of $z-\text{state}$, and with DAgger plus a jointly trained in-loop $C_\omega$. No arm beats NCM. On Sudoku-hard the three arms reach \DgTfHard, \DgDagHard{} and \DgDagCHard\% (NCM \BaseHard\%; seed-mean $t$-test $p=\DgPTfHard$, $\DgPDagHard$, $\DgPDagCHard$), and on Sudoku-medium \DgTfMedium, \DgDagMedium{} and \DgDagCMedium\% (NCM 96.00\%). On Sudoku-easy all three arms are significantly \emph{worse} (\DgTfEasy, \DgDagEasy, \DgDagCEasy\% vs.\ 99.47\%, $p\le\DgPTfEasy$), because the 100-board validation set is saturated and cannot distinguish checkpoints. Validation accuracy decreases during fine-tuning on Sudoku-hard, and selection keeps the official model for one to three of five seeds on hard and medium. A few hundred boards cannot move the decision boundaries of a 25M-parameter generator that was fitted jointly with fixed codebooks during large-scale Stage-2 training; small-sample closed-loop adaptation overfits before it removes the shift. With 30$\times$ more training boards (Section~\ref{sec:scaled}, Table~\ref{tab:dagaug}) the loss on easy disappears, but there is still no significant gain.
+
+\input{tab_dagger.tex}
+
+\section{Level-by-level decoding table}
+\label{app:levels}
+\input{tab_levels.tex}
+
+\section{Further halting variants}
+\label{app:halt_extra}
+\textbf{Token freezing.} At $\tau_{\mathrm{tok}}\le0.02$ fewer than 0.1\% of segments are ever frozen and outputs are unchanged. At $\tau_{\mathrm{tok}}=0.05$, 55\% of segments are frozen on Sudoku-hard and the solve rate drops from 86.7\% to 71.0\%; since freezing does not reduce FLOPs in the dense block-diagonal implementation, there is no setting with a favorable trade-off.
+
+\textbf{Per-sequence margin halting with batch compaction.} Batch-lockstep halting forces the whole batch to wait for its hardest item, and raw flux has a coarse dip at level~5 (Fig.~\ref{fig:flux}). We therefore also implemented per-sequence halting with true batch compaction: each sequence halts individually for $k\ge8$ when its decoder top-1 margin $\mu_{i,k}=\min_t(p_{(1)}-p_{(2)})$ exceeds $\tau_{\mathrm{margin}}$ (Step~4 of Appendix~\ref{app:p2}) and its decoding is unchanged from level $k-1$, and halted sequences are removed from the active batch. The rule never fires for $\tau_{\mathrm{margin}}\in\{0.5,0.8,0.9,0.95\}$. Across 64 boards per difficulty, the share of boards whose level-$k$ decoding equals the final one is \MarginEqMax\% for every $k\le11$, between \FlipsMin{} and \FlipsMax{} cells still change at the last level, and the median margin at level~11 is at most \MarginMedMax. Task resolution is concentrated in the final level, so no lossless early exit exists for these checkpoints at any granularity.
+
+\section{Sensitivity and qualitative analysis}
+\label{app:sens}
+\input{tab_sens.tex}
+
+
+Table~\ref{tab:sens} varies the step size and the corrector size for the in-loop corrector on Sudoku-hard. Without validation selection, all configurations are far below NCM, and larger correctors are less harmful (0.31M: 0.5\%, 3.04M: 58.8\% solved). We attribute this to the zero-initialized output projection: a larger model fits the identity on rollout trajectories more closely. With validation checkpoint selection, the 1.23M and 3.04M correctors reach 86.4--86.9\% solved, within 0.2 points of NCM, while the 0.31M corrector reaches only 62.5\%. Training a 1.2M-parameter corrector for 40 epochs on 500 boards takes about two minutes on the T4 with at most 4.4\,GB peak memory (all sizes), and building the training trajectories takes 16\,s.
+
+\input{fig_qual.tex}
+
+\paragraph{Qualitative case study and failure modes.}
+Figure~\ref{fig:qual} shows the intermediate boards of a Sudoku-hard puzzle that NCM solves and the unselected in-loop corrector does not. At level 3 the two samplers agree; after the correction perturbs the generator input at the middle levels, the later codes diverge and the final board contains errors. We observed three failure modes in total. (i) \emph{Closed-loop distribution shift}: in-loop correction moves latents towards the reference in $\ell_2$ but off the set of codeword sums the generator was trained on (Figure~\ref{fig:dose}). (ii) \emph{Premature halting at a coarse flux dip}: on Sudoku-hard the reference flux at level 5 is lower than at any fine level (Figure~\ref{fig:flux}), so any $\tau$ large enough to stop early stops at a level whose decoding solves almost no board; on Sudoku-medium the flux rule with $\tau=0.15$ stops after \ZsFluxFifteenLevMedium{} levels and solves \ZsFluxFifteenMedium\% of boards. (iii) \emph{No margin for a decode-path corrector}: because the final-level decoding is already the decoder's training input, the best decode-path correction at level $K$ is the identity.
+
+\section{On-manifold projection (small-sample runs)}
+\label{app:proj}
+\textbf{On-manifold projection.} If exposure to non-lattice inputs is the cause, projecting the corrected latent back onto the lattice of codeword sums should remove most of the collapse. After applying $C_\omega$ at level $k$, we re-quantize the level-$k$ residual against $\mathcal{V}_k$, $\tilde r_k=\arg\min_v\|\mathrm{Down}_k(\zt^{(k)}-\zh^{(k-1)})-e_{k,v}\|_2$, and feed $\zh^{(k-1)}+\Phi_k(\Up_k(E_k(\tilde r_k)))$ to the generator, so every input is again a sum $\sum_{j\le k}\Phi_j\Up_jE_j(\cdot)$. On a 32-board Sudoku-hard check set (seed-42 correctors), projection raises the unselected in-loop corrector from \ProjNoSelOff\% to \ProjNoSelOn\% solved, against \ProjNCM\% for untouched NCM; for the validation-selected corrector it gives \ProjSelOn\% (\ProjSelOff\% without projection). This confirms the exposure-bias diagnosis. Projection still trails NCM because nearest-neighbor re-quantization of one level cannot recover the global constraint satisfaction that the generator's own codes encode.
+
+\section{Halting sweep}
+\label{app:haltfig}
+\begin{figure*}[t]
+\centering
+\includegraphics[width=\textwidth]{figs/fig_halt.pdf}
+\caption{Quality versus mean executed levels for the flux and stability halting rules on uncorrected latents ($\tau\in\{0.01,\dots,0.15\}$, test items). Star: full depth. On WMT14 no setting halts; on XSum the stability rule at $\tau=0.15$ saves 0.6 levels on average at a cost of 0.7 ROUGE-L.}
+\label{fig:halt}
+\end{figure*}
+
+\section{Additional figures and tables}
+\label{app:extra_figs}
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{figs/fig_flux.pdf}
+\caption{Relative latent flux $\Delta_k$~\eqref{eq:flux} along reference trajectories of the released tokenizers (64 Sudoku-hard boards, 12 WMT14 sentences). Dotted lines mark the $\tau$ grid. The flux does not decay with $k$, which violates the premise of Proposition~\ref{prop:rd}.}
+\label{fig:flux}
+\end{figure}
+
+\begin{figure}[t]\centering\includegraphics[width=0.85\linewidth]{figs/fig_offmanifold.pdf}
+\caption{Measured constants of the revised Proposition~\ref{prop:contraction}. Left: next-level code error versus mean lattice distance when rollout states are revised by the in-loop corrector at step-size scale $s$ (seed-42 corrector). Right: per-level drift coherence $\hat c_{0,k}$ on greedy rollouts; negative values mean finer levels partially cancel accumulated drift.}\label{fig:offm}\end{figure}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{figs/fig_dose.pdf}
+\caption{Closed-loop validation quality of the in-loop corrector as a function of its step-size scale $s$ (relative to $s=0$, mean$\pm$std over five seeds; Sudoku: solve rate, WMT14: BLEU). Quality decreases monotonically with $s$; the effect is strongest for translation, where the generator is most sensitive to its input latent.}
+\label{fig:dose}
+\end{figure}
+
+\input{tab_dagaug.tex}
+

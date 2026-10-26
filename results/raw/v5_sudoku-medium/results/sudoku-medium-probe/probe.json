@@ -1,0 +1,123 @@
+{
+ "task": "sudoku-medium",
+ "label_rate_by_level_train": [
+  0.0,
+  0.0,
+  0.0,
+  0.0,
+  0.0,
+  0.0,
+  0.0,
+  0.0,
+  0.0,
+  0.0,
+  0.0,
+  1.0
+ ],
+ "label_rate_by_level_test": [
+  0.0,
+  0.0,
+  0.0,
+  0.0,
+  0.0,
+  0.0,
+  0.0,
+  0.0,
+  0.0,
+  0.0,
+  0.0,
+  1.0
+ ],
+ "auroc_test_by_level": [
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null
+ ],
+ "auroc_test_pooled": null,
+ "val_sweep": {
+  "0.5": {
+   "score": 96.3,
+   "levels": 12.0
+  },
+  "0.7": {
+   "score": 96.3,
+   "levels": 12.0
+  },
+  "0.9": {
+   "score": 96.3,
+   "levels": 12.0
+  },
+  "0.95": {
+   "score": 96.3,
+   "levels": 12.0
+  },
+  "0.99": {
+   "score": 96.3,
+   "levels": 12.0
+  }
+ },
+ "thr": 0.5,
+ "full_val": {
+  "exact": 96.3,
+  "cell": 99.81358024691357
+ },
+ "test": {
+  "scores": {
+   "exact": 96.0,
+   "cell": 99.76213991769546
+  },
+  "levels": 12.0
+ },
+ "test_full": {
+  "scores": {
+   "exact": 96.0,
+   "cell": 99.76213991769546
+  },
+  "levels": 12.0
+ },
+ "test_sweep": {
+  "0.5": {
+   "scores": {
+    "exact": 96.0,
+    "cell": 99.76213991769546
+   },
+   "levels": 12.0
+  },
+  "0.7": {
+   "scores": {
+    "exact": 96.0,
+    "cell": 99.76213991769546
+   },
+   "levels": 12.0
+  },
+  "0.9": {
+   "scores": {
+    "exact": 96.0,
+    "cell": 99.76213991769546
+   },
+   "levels": 12.0
+  },
+  "0.95": {
+   "scores": {
+    "exact": 96.0,
+    "cell": 99.76213991769546
+   },
+   "levels": 12.0
+  },
+  "0.99": {
+   "scores": {
+    "exact": 96.0,
+    "cell": 99.76213991769546
+   },
+   "levels": 12.0
+  }
+ }
+}

@@ -2,13 +2,9 @@
 \label{app:p1}
 \textit{Step 1 (drift recursion).} By~\eqref{eq:cum} and~\eqref{eq:pred}, $\zh^{(k)}-\zh^{(k)}_{\mathrm{GT}}=\zh^{(k-1)}-\zh^{(k-1)}_{\mathrm{GT}}+A_k\big(E_k(\hat r_k)-E_k(r_k^\ast)\big)$, i.e., $e^{(k)}=e^{(k-1)}+\epsilon_k$ with $e^{(0)}=0$.
 
-\textit{Step 2 (one-step lower bound).} Let $a=\|e^{(k-1)}\|$ and $b=\|\epsilon_k\|$. By Assumption~\ref{as:coh},
-\begin{equation}
-\|e^{(k)}\|^2=a^2+2\langle e^{(k-1)},\epsilon_k\rangle+b^2\ge a^2+2c_0ab+b^2.
-\end{equation}
-Since $c_0\le1$, $a^2+2c_0ab+b^2\ge a^2+2c_0ab+c_0^2b^2=(a+c_0b)^2$, so $\|e^{(k)}\|\ge\|e^{(k-1)}\|+c_0\|\epsilon_k\|$.
+\textit{Step 2 (one-step lower bound).} Let $\nu_{k-1}$ be as in Assumption~\ref{as:coh}. By Cauchy--Schwarz, $\|e^{(k)}\|\ge\langle \nu_{k-1},e^{(k)}\rangle$ pointwise, and by Step 1, $\langle \nu_{k-1},e^{(k)}\rangle=\langle \nu_{k-1},e^{(k-1)}\rangle+\langle \nu_{k-1},\epsilon_k\rangle=\|e^{(k-1)}\|+\langle \nu_{k-1},\epsilon_k\rangle$ (for $e^{(k-1)}=0$ both sides equal $\langle \nu_{k-1},\epsilon_k\rangle$). Hence $\|e^{(k)}\|\ge\|e^{(k-1)}\|+\langle \nu_{k-1},\epsilon_k\rangle$ almost surely.
 
-\textit{Step 3 (telescoping).} Summing Step 2 over $k=1,\dots,K$ yields $\|e^{(K)}\|\ge c_0\sum_{k=1}^K\|\epsilon_k\|$. Taking expectations and using $\sigma_k=\mathbb{E}\|\epsilon_k\|$ gives~\eqref{eq:lower}.
+\textit{Step 3 (expectation and telescoping).} Taking expectations of Step 2 and using Assumption~\ref{as:coh}, $\mathbb{E}\|e^{(k)}\|\ge\mathbb{E}\|e^{(k-1)}\|+c_0\sigma_k$. Summing over $k=1,\dots,K$ with $e^{(0)}=0$ yields $\mathbb{E}\|e^{(K)}\|\ge c_0\sum_{k=1}^K\sigma_k$, i.e.,~\eqref{eq:lower}. The argument is linear in expectation, so no Jensen-type inequality between $\mathbb{E}\|e\|$ and $\sqrt{\mathbb{E}\|e\|^2}$ is used.
 
 \textit{Step 4 (size of $\sigma_k$).} $E_k(\hat r_k)-E_k(r_k^\ast)$ has at most $m_k$ non-zero rows, each of norm at most $\mathrm{diam}(\mathcal{V}_k)=\max_{v,v'}\|e_{k,v}-e_{k,v'}\|$; hence its Frobenius norm is at most $\sqrt{m_k}\,\mathrm{diam}(\mathcal{V}_k)\le m_k\,\mathrm{diam}(\mathcal{V}_k)$, and Assumption~\ref{as:lip} gives $\|\epsilon_k\|\le L_p m_k\mathrm{diam}(\mathcal{V}_k)$. Note that $\Up_k$ replicates each coarse row over about $L/\ell_k$ fine rows; for linear interpolation $\|\Up_k\|_{\mathrm{op}}\le\sqrt{\lceil L/\ell_k\rceil}$, so $L_p$ is largest at coarse levels, which is the broadcast effect described in Section~IV-A.
 

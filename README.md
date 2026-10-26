@@ -50,6 +50,9 @@ Splits: the public repository contains only test files, so the first `n_train` i
 ## Data availability
 No new data are created. Checkpoints and datasets are the public releases `hazyresearch/ncm-checkpoints` and `hazyresearch/ncm-datasets` on the Hugging Face Hub. Our per-run outputs (including per-item scores) are in `results/`.
 
+## Scaled re-evaluation (v5)
+`src/run_v5.py` (corrector/projection on external splits, full test sets), `src/probe.py` (learned halting probe), `src/dagger_aug.py` (DAgger on symmetry-augmented boards), `src/perturb.py` (Stage-2 perturbation pilot). External splits are rebuilt deterministically by `src/aug_sudoku.py` and `src/build_ext.py`. Tables: `python scripts/gen_v5.py paper`; per-run outputs in `results/raw/`, summary in `results/summary_v5.json`.
+
 ## License
 MIT (this code). The NCM code, checkpoints and datasets are subject to their own licenses.
 

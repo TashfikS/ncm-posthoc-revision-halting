@@ -1,0 +1,95 @@
+  [C seed42 h312] ep0 train 2.6446 val 0.1399 mse 0.0682 (uncorr 0.0688) eta 0.500
+  [C seed42 h312] ep1 train 1.1124 val 0.1379 mse 0.0751 (uncorr 0.0688) eta 0.501
+  [C seed42 h312] ep2 train 0.4851 val 0.1267 mse 0.0673 (uncorr 0.0688) eta 0.500
+  [C seed42 h312] ep3 train 0.5563 val 0.1291 mse 0.0690 (uncorr 0.0688) eta 0.500
+  [C seed42 h312] ep4 train 0.3321 val 0.1250 mse 0.0669 (uncorr 0.0688) eta 0.500
+  [C seed42 h312] ep5 train 0.3260 val 0.1262 mse 0.0676 (uncorr 0.0688) eta 0.500
+  [C seed42 h312] ep6 train 0.2714 val 0.1249 mse 0.0669 (uncorr 0.0688) eta 0.500
+  [C seed42 h312] ep7 train 0.2130 val 0.1240 mse 0.0664 (uncorr 0.0688) eta 0.500
+  [C seed42 h312] ep8 train 0.2045 val 0.1240 mse 0.0662 (uncorr 0.0688) eta 0.500
+  [C seed42 h312] ep9 train 0.2285 val 0.1240 mse 0.0663 (uncorr 0.0688) eta 0.500
+  [C seed42] best epoch 8 (-1 = identity) val 0.1240
+[official C s42] s_sel 0.5 loop_0.25 87.00 loop_0.5 87.07 loop_1.0 78.53 loop_sel 87.07 proj 86.53 | gen-base 86.67
+  [C seed0 h312] ep0 train 3.4446 val 0.1389 mse 0.0697 (uncorr 0.0702) eta 0.500
+  [C seed0 h312] ep1 train 1.2998 val 0.1599 mse 0.0826 (uncorr 0.0702) eta 0.502
+  [C seed0 h312] ep2 train 0.5910 val 0.1477 mse 0.0780 (uncorr 0.0702) eta 0.501
+  [C seed0 h312] ep3 train 0.6492 val 0.1362 mse 0.0721 (uncorr 0.0702) eta 0.500
+  [C seed0 h312] ep4 train 0.4010 val 0.1345 mse 0.0705 (uncorr 0.0702) eta 0.500
+  [C seed0 h312] ep5 train 0.3696 val 0.1333 mse 0.0693 (uncorr 0.0702) eta 0.500
+  [C seed0 h312] ep6 train 0.2534 val 0.1342 mse 0.0709 (uncorr 0.0702) eta 0.500
+  [C seed0 h312] ep7 train 0.2071 val 0.1325 mse 0.0695 (uncorr 0.0702) eta 0.500
+  [C seed0 h312] ep8 train 0.1876 val 0.1322 mse 0.0693 (uncorr 0.0702) eta 0.500
+  [C seed0 h312] ep9 train 0.2246 val 0.1323 mse 0.0693 (uncorr 0.0702) eta 0.500
+  [C seed0] best epoch 8 (-1 = identity) val 0.1322
+[official C s0] s_sel 0.5 loop_0.25 86.80 loop_0.5 86.67 loop_1.0 81.00 loop_sel 86.67 proj 86.47 | gen-base 86.67
+  [C seed1 h312] ep0 train 2.2416 val 0.1318 mse 0.0680 (uncorr 0.0677) eta 0.500
+  [C seed1 h312] ep1 train 1.3628 val 0.1325 mse 0.0714 (uncorr 0.0677) eta 0.501
+  [C seed1 h312] ep2 train 0.6274 val 0.1282 mse 0.0694 (uncorr 0.0677) eta 0.500
+  [C seed1 h312] ep3 train 0.5263 val 0.1262 mse 0.0678 (uncorr 0.0677) eta 0.500
+  [C seed1 h312] ep4 train 0.5104 val 0.1276 mse 0.0688 (uncorr 0.0677) eta 0.500
+  [C seed1 h312] ep5 train 0.2621 val 0.1242 mse 0.0665 (uncorr 0.0677) eta 0.500
+  [C seed1 h312] ep6 train 0.2477 val 0.1251 mse 0.0664 (uncorr 0.0677) eta 0.500
+  [C seed1 h312] ep7 train 0.2320 val 0.1240 mse 0.0662 (uncorr 0.0677) eta 0.500
+  [C seed1 h312] ep8 train 0.2323 val 0.1239 mse 0.0663 (uncorr 0.0677) eta 0.500
+  [C seed1 h312] ep9 train 0.1887 val 0.1239 mse 0.0663 (uncorr 0.0677) eta 0.500
+  [C seed1] best epoch 8 (-1 = identity) val 0.1239
+[official C s1] s_sel 0.5 loop_0.25 86.73 loop_0.5 86.73 loop_1.0 75.07 loop_sel 86.73 proj 86.53 | gen-base 86.67
+[sigma 0.05] ep0 loss 1.7620 val {'exact': 77.66666666666666, 'cell': 97.25102880658437, 'ce': 0.3760087539752324}
+[sigma 0.05] ep1 loss 1.1392 val {'exact': 77.91666666666667, 'cell': 97.43106995884773, 'ce': 0.34893036012848216}
+[sigma 0.05] ep2 loss 0.9586 val {'exact': 78.75, 'cell': 97.429012345679, 'ce': 0.3483698790272077}
+[sigma 0.05] ep3 loss 0.7870 val {'exact': 78.91666666666667, 'cell': 97.59876543209877, 'ce': 0.32577206566929817}
+[sigma 0.05] ep4 loss 0.6926 val {'exact': 78.91666666666667, 'cell': 97.69135802469138, 'ce': 0.3123755616446336}
+[sigma 0.05] ep5 loss 0.6912 val {'exact': 78.66666666666666, 'cell': 97.73662551440329, 'ce': 0.30491919070482254}
+  [C seed42 h312] ep0 train 2.6446 val 0.1399 mse 0.0682 (uncorr 0.0688) eta 0.500
+  [C seed42 h312] ep1 train 1.1124 val 0.1379 mse 0.0751 (uncorr 0.0688) eta 0.501
+  [C seed42 h312] ep2 train 0.4851 val 0.1267 mse 0.0673 (uncorr 0.0688) eta 0.500
+  [C seed42 h312] ep3 train 0.5563 val 0.1291 mse 0.0690 (uncorr 0.0688) eta 0.500
+  [C seed42 h312] ep4 train 0.3321 val 0.1250 mse 0.0669 (uncorr 0.0688) eta 0.500
+  [C seed42 h312] ep5 train 0.3260 val 0.1262 mse 0.0676 (uncorr 0.0688) eta 0.500
+  [C seed42 h312] ep6 train 0.2714 val 0.1249 mse 0.0669 (uncorr 0.0688) eta 0.500
+  [C seed42 h312] ep7 train 0.2130 val 0.1240 mse 0.0664 (uncorr 0.0688) eta 0.500
+  [C seed42 h312] ep8 train 0.2045 val 0.1240 mse 0.0662 (uncorr 0.0688) eta 0.500
+  [C seed42 h312] ep9 train 0.2285 val 0.1240 mse 0.0663 (uncorr 0.0688) eta 0.500
+  [C seed42] best epoch 8 (-1 = identity) val 0.1240
+[sigma0.05 C s42] s_sel 0.5 loop_0.25 87.00 loop_0.5 87.07 loop_1.0 78.53 loop_sel 87.07 proj 86.53 | gen-base 86.67
+  [C seed0 h312] ep0 train 3.4446 val 0.1389 mse 0.0697 (uncorr 0.0702) eta 0.500
+  [C seed0 h312] ep1 train 1.2998 val 0.1599 mse 0.0826 (uncorr 0.0702) eta 0.502
+  [C seed0 h312] ep2 train 0.5910 val 0.1477 mse 0.0780 (uncorr 0.0702) eta 0.501
+  [C seed0 h312] ep3 train 0.6492 val 0.1362 mse 0.0721 (uncorr 0.0702) eta 0.500
+  [C seed0 h312] ep4 train 0.4010 val 0.1345 mse 0.0705 (uncorr 0.0702) eta 0.500
+  [C seed0 h312] ep5 train 0.3696 val 0.1333 mse 0.0693 (uncorr 0.0702) eta 0.500
+  [C seed0 h312] ep6 train 0.2534 val 0.1342 mse 0.0709 (uncorr 0.0702) eta 0.500
+  [C seed0 h312] ep7 train 0.2071 val 0.1325 mse 0.0695 (uncorr 0.0702) eta 0.500
+  [C seed0 h312] ep8 train 0.1876 val 0.1322 mse 0.0693 (uncorr 0.0702) eta 0.500
+  [C seed0 h312] ep9 train 0.2246 val 0.1323 mse 0.0693 (uncorr 0.0702) eta 0.500
+  [C seed0] best epoch 8 (-1 = identity) val 0.1322
+[sigma0.05 C s0] s_sel 0.5 loop_0.25 86.80 loop_0.5 86.67 loop_1.0 81.00 loop_sel 86.67 proj 86.47 | gen-base 86.67
+  [C seed1 h312] ep0 train 2.2416 val 0.1318 mse 0.0680 (uncorr 0.0677) eta 0.500
+  [C seed1 h312] ep1 train 1.3628 val 0.1325 mse 0.0714 (uncorr 0.0677) eta 0.501
+  [C seed1 h312] ep2 train 0.6274 val 0.1282 mse 0.0694 (uncorr 0.0677) eta 0.500
+  [C seed1 h312] ep3 train 0.5263 val 0.1262 mse 0.0678 (uncorr 0.0677) eta 0.500
+  [C seed1 h312] ep4 train 0.5104 val 0.1276 mse 0.0688 (uncorr 0.0677) eta 0.500
+  [C seed1 h312] ep5 train 0.2621 val 0.1242 mse 0.0665 (uncorr 0.0677) eta 0.500
+  [C seed1 h312] ep6 train 0.2477 val 0.1251 mse 0.0664 (uncorr 0.0677) eta 0.500
+  [C seed1 h312] ep7 train 0.2320 val 0.1240 mse 0.0662 (uncorr 0.0677) eta 0.500
+  [C seed1 h312] ep8 train 0.2323 val 0.1239 mse 0.0663 (uncorr 0.0677) eta 0.500
+  [C seed1 h312] ep9 train 0.1887 val 0.1239 mse 0.0663 (uncorr 0.0677) eta 0.500
+  [C seed1] best epoch 8 (-1 = identity) val 0.1239
+[sigma0.05 C s1] s_sel 0.5 loop_0.25 86.73 loop_0.5 86.73 loop_1.0 75.07 loop_sel 86.73 proj 86.53 | gen-base 86.67
+[sigma 0.1] ep0 loss 1.7541 val {'exact': 77.5, 'cell': 97.10802469135803, 'ce': 0.3941555880010128}
+[sigma 0.1] ep1 loss 1.1537 val {'exact': 78.58333333333334, 'cell': 97.46296296296298, 'ce': 0.34298284103473026}
+[sigma 0.1] ep2 loss 0.9597 val {'exact': 77.83333333333333, 'cell': 97.40123456790123, 'ce': 0.3517201654613018}
+[sigma 0.1] ep3 loss 0.7943 val {'exact': 78.66666666666666, 'cell': 97.57818930041151, 'ce': 0.3284372401734193}
+[sigma 0.1] ep4 loss 0.7003 val {'exact': 79.08333333333334, 'cell': 97.6954732510288, 'ce': 0.31135502954324085}
+[sigma 0.1] ep5 loss 0.6997 val {'exact': 78.91666666666667, 'cell': 97.68312757201646, 'ce': 0.3135831765830517}
+  [C seed42 h312] ep0 train 2.6446 val 0.1399 mse 0.0682 (uncorr 0.0688) eta 0.500
+  [C seed42 h312] ep1 train 1.1124 val 0.1379 mse 0.0751 (uncorr 0.0688) eta 0.501
+  [C seed42 h312] ep2 train 0.4851 val 0.1267 mse 0.0673 (uncorr 0.0688) eta 0.500
+  [C seed42 h312] ep3 train 0.5563 val 0.1291 mse 0.0690 (uncorr 0.0688) eta 0.500
+  [C seed42 h312] ep4 train 0.3321 val 0.1250 mse 0.0669 (uncorr 0.0688) eta 0.500
+  [C seed42 h312] ep5 train 0.3260 val 0.1262 mse 0.0676 (uncorr 0.0688) eta 0.500
+  [C seed42 h312] ep6 train 0.2714 val 0.1249 mse 0.0669 (uncorr 0.0688) eta 0.500
+  [C seed42 h312] ep7 train 0.2130 val 0.1240 mse 0.0664 (uncorr 0.0688) eta 0.500
+  [C seed42 h312] ep8 train 0.2045 val 0.1240 mse 0.0662 (uncorr 0.0688) eta 0.500
+  [C seed42 h312] ep9 train 0.2285 val 0.1240 mse 0.0663 (uncorr 0.0688) eta 0.500
+  [C seed42] best epoch 8 (-1 = identity) val 0.1240

@@ -1,0 +1,62 @@
+splits {'train': 3000, 'val': 998, 'test': 1500}
+NCM val {'rouge1': 34.33133160737935, 'rouge2': 12.683609389935974, 'rougeL': 27.691596839472616} test {'rouge1': 34.61558198553713, 'rouge2': 12.59015499734237, 'rougeL': 27.644041650355067}
+train set {'prefix': (3000, 512), 'y': (3000, 48), 'zg': (3000, 8, 48, 384), 'zr': (3000, 8, 48, 384), 'zc': (2, 3000, 8, 48, 384)}
+  [C seed42 h292] ep0 train 8.4840 val 4.4309 mse 2.0678 (uncorr 2.0457) eta 0.501
+  [C seed42 h292] ep1 train 6.7843 val 3.7861 mse 1.8000 (uncorr 2.0457) eta 0.504
+  [C seed42 h292] ep2 train 6.3821 val 3.5482 mse 1.6391 (uncorr 2.0457) eta 0.508
+  [C seed42 h292] ep3 train 5.2702 val 3.4035 mse 1.5370 (uncorr 2.0457) eta 0.511
+  [C seed42 h292] ep4 train 6.0056 val 3.3263 mse 1.4892 (uncorr 2.0457) eta 0.514
+  [C seed42 h292] ep5 train 5.2516 val 3.2347 mse 1.4581 (uncorr 2.0457) eta 0.516
+  [C seed42 h292] ep6 train 5.5438 val 3.2507 mse 1.4380 (uncorr 2.0457) eta 0.517
+  [C seed42 h292] ep7 train 4.8344 val 3.2446 mse 1.4274 (uncorr 2.0457) eta 0.518
+  [C seed42 h292] ep8 train 4.7218 val 3.2748 mse 1.4243 (uncorr 2.0457) eta 0.518
+  [C seed42 h292] ep9 train 5.5470 val 3.1729 mse 1.4238 (uncorr 2.0457) eta 0.518
+  [C seed42] best epoch 9 (-1 = identity) val 3.1729
+== seed 42 s_loop 0.0 s_proj 0.0 halt flux_0.01 | loop 13.08 loop_sel 27.64 proj 20.02 proj_sel 27.61 sel_halt 27.64 | NCM 27.64
+  [C seed0 h292] ep0 train 8.4667 val 4.6634 mse 2.0964 (uncorr 2.0666) eta 0.501
+  [C seed0 h292] ep1 train 6.3328 val 3.8502 mse 1.8038 (uncorr 2.0666) eta 0.504
+  [C seed0 h292] ep2 train 6.7326 val 3.5599 mse 1.6445 (uncorr 2.0666) eta 0.507
+  [C seed0 h292] ep3 train 6.1753 val 3.4791 mse 1.5372 (uncorr 2.0666) eta 0.511
+  [C seed0 h292] ep4 train 5.3980 val 3.2994 mse 1.4819 (uncorr 2.0666) eta 0.514
+  [C seed0 h292] ep5 train 6.1626 val 3.2822 mse 1.4565 (uncorr 2.0666) eta 0.516
+  [C seed0 h292] ep6 train 5.4476 val 3.2291 mse 1.4379 (uncorr 2.0666) eta 0.517
+  [C seed0 h292] ep7 train 4.7334 val 3.2544 mse 1.4239 (uncorr 2.0666) eta 0.518
+  [C seed0 h292] ep8 train 4.7203 val 3.2730 mse 1.4211 (uncorr 2.0666) eta 0.518
+  [C seed0 h292] ep9 train 5.1076 val 3.2093 mse 1.4204 (uncorr 2.0666) eta 0.518
+  [C seed0] best epoch 9 (-1 = identity) val 3.2093
+== seed 0 s_loop 0.0 s_proj 0.0 halt flux_0.01 | loop 12.14 loop_sel 27.64 proj 19.44 proj_sel 27.61 sel_halt 27.64 | NCM 27.64
+  [C seed1 h292] ep0 train 6.8772 val 4.3597 mse 2.0803 (uncorr 2.0440) eta 0.501
+  [C seed1 h292] ep1 train 6.1268 val 3.8128 mse 1.7922 (uncorr 2.0440) eta 0.504
+  [C seed1 h292] ep2 train 7.2870 val 3.6251 mse 1.6485 (uncorr 2.0440) eta 0.507
+  [C seed1 h292] ep3 train 6.0408 val 3.4350 mse 1.5379 (uncorr 2.0440) eta 0.511
+  [C seed1 h292] ep4 train 5.7209 val 3.3289 mse 1.4857 (uncorr 2.0440) eta 0.514
+  [C seed1 h292] ep5 train 5.1331 val 3.3069 mse 1.4536 (uncorr 2.0440) eta 0.516
+  [C seed1 h292] ep6 train 5.5877 val 3.3047 mse 1.4402 (uncorr 2.0440) eta 0.517
+  [C seed1 h292] ep7 train 5.2763 val 3.2390 mse 1.4318 (uncorr 2.0440) eta 0.518
+  [C seed1 h292] ep8 train 5.6885 val 3.2424 mse 1.4293 (uncorr 2.0440) eta 0.518
+  [C seed1 h292] ep9 train 5.6741 val 3.2345 mse 1.4288 (uncorr 2.0440) eta 0.518
+  [C seed1] best epoch 9 (-1 = identity) val 3.2345
+== seed 1 s_loop 0.0 s_proj 0.0 halt flux_0.01 | loop 11.37 loop_sel 27.64 proj 20.23 proj_sel 27.61 sel_halt 27.64 | NCM 27.64
+  [C seed2 h292] ep0 train 7.8829 val 4.4061 mse 2.0477 (uncorr 2.0298) eta 0.501
+  [C seed2 h292] ep1 train 6.5897 val 3.7750 mse 1.7764 (uncorr 2.0298) eta 0.504
+  [C seed2 h292] ep2 train 5.2584 val 3.5126 mse 1.6139 (uncorr 2.0298) eta 0.507
+  [C seed2 h292] ep3 train 6.5386 val 3.4225 mse 1.5308 (uncorr 2.0298) eta 0.511
+  [C seed2 h292] ep4 train 5.5612 val 3.3468 mse 1.4781 (uncorr 2.0298) eta 0.513
+  [C seed2 h292] ep5 train 4.7306 val 3.3041 mse 1.4450 (uncorr 2.0298) eta 0.515
+  [C seed2 h292] ep6 train 4.8353 val 3.2103 mse 1.4286 (uncorr 2.0298) eta 0.516
+  [C seed2 h292] ep7 train 5.1582 val 3.1916 mse 1.4199 (uncorr 2.0298) eta 0.517
+  [C seed2 h292] ep8 train 5.3611 val 3.1982 mse 1.4172 (uncorr 2.0298) eta 0.517
+  [C seed2 h292] ep9 train 6.1052 val 3.2289 mse 1.4168 (uncorr 2.0298) eta 0.517
+  [C seed2] best epoch 7 (-1 = identity) val 3.1916
+== seed 2 s_loop 0.0 s_proj 0.25 halt flux_0.01 | loop 12.21 loop_sel 27.64 proj 20.54 proj_sel 27.39 sel_halt 27.64 | NCM 27.64
+  [C seed3 h292] ep0 train 8.9257 val 4.4339 mse 2.0547 (uncorr 2.0367) eta 0.501
+  [C seed3 h292] ep1 train 6.6948 val 3.8166 mse 1.7936 (uncorr 2.0367) eta 0.504
+  [C seed3 h292] ep2 train 5.4952 val 3.5670 mse 1.6185 (uncorr 2.0367) eta 0.508
+  [C seed3 h292] ep3 train 6.2071 val 3.3695 mse 1.5262 (uncorr 2.0367) eta 0.511
+  [C seed3 h292] ep4 train 6.0483 val 3.3549 mse 1.4781 (uncorr 2.0367) eta 0.514
+  [C seed3 h292] ep5 train 4.9440 val 3.3050 mse 1.4477 (uncorr 2.0367) eta 0.516
+  [C seed3 h292] ep6 train 5.4917 val 3.2464 mse 1.4341 (uncorr 2.0367) eta 0.517
+  [C seed3 h292] ep7 train 5.4690 val 3.1968 mse 1.4238 (uncorr 2.0367) eta 0.518
+  [C seed3 h292] ep8 train 4.7734 val 3.2129 mse 1.4199 (uncorr 2.0367) eta 0.518
+  [C seed3 h292] ep9 train 5.3394 val 3.1873 mse 1.4196 (uncorr 2.0367) eta 0.518
+  [C seed3] best epoch 9 (-1 = identity) val 3.1873

@@ -58,7 +58,7 @@ Define the per-level code error $\epsilon_k=\Phi_k\Up_k\big(E_k(\hat r_k)-E_k(r^
 \begin{equation}
 e^{(k)}\triangleq\zh^{(k)}-\zh^{(k)}_{\mathrm{GT}} = e^{(k-1)}+\epsilon_k=\sum_{j=0}^{k}\epsilon_j. \label{eq:drift}
 \end{equation}
-Because $\Up_j$ is a linear interpolation from $\ell_j\ll L$ positions, a single wrong code at a coarse level changes $\lceil L/\ell_j\rceil$ output positions. Moreover, $\hat r_{k+1}$ is computed from $u_{k+1}$, which contains $e^{(k)}$, while the generator and codebook $\mathcal{V}_{k+1}$ were trained on $u_{k+1}$ built from clean residuals, so~\eqref{eq:drift} is never contracted by the sampler itself.
+Because $\Up_j$ is a linear interpolation from $\ell_j\ll L$ positions, a single wrong code at a coarse level changes $\lceil L/\ell_j\rceil$ output positions. Moreover, $\hat r_{k+1}$ is computed from $u_{k+1}$, which contains $e^{(k)}$, while the generator and codebook $\mathcal{V}_{k+1}$ were trained on $u_{k+1}$ built from clean residuals, so nothing in the sampler is designed to contract~\eqref{eq:drift}; whether finer levels nevertheless cancel drift is an empirical question (Remark~\ref{rem:c0}).
 
 \subsection{Learned latent corrector $C_\omega$}
 We insert a learned revision after the predictor update~\eqref{eq:pred}:
@@ -88,61 +88,9 @@ A batch halts at the first $k^\ast\le K-2$ at which every sequence satisfies $\D
 \label{sec:select}
 All choices are made on the first $N_{\mathrm{tr}}$ items of each official test file, which are disjoint from the reported evaluation items. Within these, $80\%$ are used for gradient steps and $20\%$ as a validation set. (i) The training checkpoint with the lowest validation loss~\eqref{eq:loss} on rollout trajectories is kept, including the identity at initialization (epoch $-1$). (ii) The step-size scale $s$ is chosen from $\{0,0.25,0.5,1\}$ by \emph{closed-loop} validation quality (solve rate, BLEU or ROUGE-L); for the decode-path variant a separate $s_k$ is chosen per level using the level-$k$ decoding quality (cell accuracy for Sudoku). Ties are broken towards the smaller scale. (iii) The halting rule and $\tau$ are chosen on the same $N_{\mathrm{tr}}$ items as the setting with the fewest mean levels whose quality is within $0.5$ points of the full-depth model. Run 1 of our study (``in-loop, no selection'') omits (i) and (ii); it is reported as an ablation.
 
-\begin{figure*}[t]
-\centering
-\begin{tikzpicture}[font=\footnotesize, node distance=4mm and 6mm,
- box/.style={draw, rounded corners=2pt, minimum height=6mm, align=center, fill=white},
- gen/.style={box, fill=blue!8}, cor/.style={box, fill=orange!18}, dec/.style={box, fill=green!10}, hal/.style={box, fill=red!8, diamond, aspect=2.2, inner sep=1pt},
- >={Stealth[length=2mm]}]
-\node[font=\bfseries\footnotesize] (tA) at (0,0.9) {(a) Baseline NCM};
-\node[gen] (g0) at (0,0) {$G_\phi$\\level $k$};
-\node[box, right=of g0] (p0) {$\zh^{(k)}=\zh^{(k-1)}$\\$+\Phi_k\Up_k E_k(\hat r_k)$};
-\node[box, right=of p0] (d0) {$\mathrm{Down}_{k+1}$};
-\node[gen, right=of d0] (g1) {$G_\phi$\\level $k{+}1$};
-\node[dec, right=12mm of g1] (o0) {$D_\psi(\zh^{(K-1)})$\\after all $K$ levels};
-\draw[->] (g0) -- node[above]{$\hat r_k$} (p0); \draw[->] (p0) -- (d0); \draw[->] (d0) -- node[above]{$u_{k+1}$} (g1); \draw[->, dashed] (g1) -- node[above]{$\cdots$} (o0);
-\node[font=\bfseries\footnotesize] (tB) at (0,-1.35) {(b) APC-NCM};
-\node[gen] (G0) at (0,-2.3) {$G_\phi$\\level $k$};
-\node[box, right=of G0] (P0) {predictor\\ \eqref{eq:pred}};
-\node[cor, right=of P0] (C0) {corrector $C_\omega$\\ \eqref{eq:corr}};
-\node[hal, right=of C0] (H0) {$\Delta_k{<}\tau$?};
-\node[box, right=of H0] (D0) {$\mathrm{Down}_{k+1}$};
-\node[gen, right=of D0] (G1) {$G_\phi$\\level $k{+}1$};
-\node[dec, below=6mm of H0] (O0) {$D_\psi(\zt^{(k^\ast)})$};
-\node[box, above=3mm of C0, fill=gray!10] (pf) {$h_{\mathrm{prefix}}$, level $k$};
-\draw[->] (G0) -- node[above]{$\hat r_k$} (P0); \draw[->] (P0) -- node[above]{$\zh^{(k)}_{\mathrm{pred}}$} (C0); \draw[->] (C0) -- node[above]{$\zt^{(k)}$} (H0);
-\draw[->] (H0) -- node[above]{no} (D0); \draw[->] (D0) -- (G1); \draw[->] (H0) -- node[right]{yes: halt} (O0); \draw[->] (pf) -- (C0);
-\draw[->, densely dotted, orange!70!black] (P0.south) to[out=-40,in=-140] node[below=9mm, pos=0.5, font=\scriptsize, text=orange!70!black]{decode-path variant: $u_{k+1}$ bypasses $C_\omega$} (D0.south);
-\end{tikzpicture}
-\caption{Baseline NCM (a) adds one quantized residual per level and always runs all $K$ levels. APC-NCM (b) revises the cumulative latent with a learned corrector and may halt once the latent flux (or decoder instability) falls below $\tau$. In the in-loop variant the corrected latent feeds the next generator level; in the decode-path variant (dotted) the generator continues from the uncorrected latent and $C_\omega$ acts only on decoded latents.}
-\label{fig:arch}
-\end{figure*}
 
-\begin{algorithm}[t]
-\caption{APC-NCM training and inference}
-\label{alg:apc}
-\begin{algorithmic}[1]
-\Require frozen $E_\theta,D_\psi,\{\mathcal{V}_k,\Phi_k\}$, $G_\phi$; training inputs/references $\{(c_i,y_i)\}_{i\le N_{\mathrm{tr}}}$
-\State \textbf{Training}
-\For{$i=1,\dots,N_{\mathrm{tr}}$}
-  \State $(\zh^{(k)}_{\mathrm{GT}})_k\gets$ \texttt{z\_to\_idx}$(E_\theta(y_i))$;\quad $(\zh^{(k)}_{\mathrm{roll}})_k\gets$ greedy rollout of $G_\phi$ on $c_i$
-  \State $(\zh^{(k)}_{\mathrm{cor}})_k\gets$ cumulative latents of codes corrupted at rate $u\sim\mathcal{U}(0,1)$, level 0 kept
-\EndFor
-\State minimize~\eqref{eq:loss} with AdamW, one-cycle LR; keep best validation epoch (identity included)
-\State choose $s$ (or $s_k$) by closed-loop validation quality; choose rule and $\tau$ on $\{c_i\}$
-\State \textbf{Inference} on a batch of prefixes $c$
-\State $\zh^{(-1)}\gets 0$; sample $\hat r_0$ with $G_\phi$
-\For{$k=0,\dots,K-2$}
-  \State $\zh^{(k)}\gets\zh^{(k-1)}+\Phi_k\Up_kE_k(\hat r_k)$ \Comment{predictor}
-  \State $\zt^{(k)}\gets\zh^{(k)}-\eta_kC_\omega(\zh^{(k)},h_{\mathrm{prefix}},k)$ \Comment{corrector}
-  \If{freezing} copy rows of $\zh^{(k-1)}$ into frozen segments \EndIf
-  \If{$k\ge k_{\min}$ \textbf{and} halting criterion holds for all sequences} \Return $D_\psi(\zt^{(k)})$ \EndIf
-  \State $u_{k+1}\gets\mathrm{Down}_{k+1}(\zt^{(k)})$ (in-loop) or $\mathrm{Down}_{k+1}(\zh^{(k)})$ (decode-path)
-  \State $\hat r_{k+1}\gets\argmax G_\phi(u_{k+1},c)$
-\EndFor
-\State \Return $D_\psi\big(\zh^{(K-2)}{+}\Phi_{K-1}E_{K-1}(\hat r_{K-1})\big)$, corrected at level $K{-}1$ in the decode-path variant
-\end{algorithmic}
-\end{algorithm}
+
+
 
 \section{Theoretical Analysis}
 \label{sec:theory}
@@ -151,14 +99,14 @@ We analyze the drift recursion~\eqref{eq:drift} and the halting error. Norms are
 \begin{assumption}[Lipschitz upsampling]\label{as:lip}
 $A_k\triangleq\Phi_k\circ\Up_k$ is linear with $\|A_k\|_{\mathrm{op}}\le L_p$.
 \end{assumption}
-\begin{assumption}[Drift coherence]\label{as:coh}
-There is $c_0\in(0,1]$ such that $\langle e^{(k-1)},\epsilon_k\rangle\ge c_0\,\|e^{(k-1)}\|\,\|\epsilon_k\|$ almost surely, and $\sigma_k\triangleq\mathbb{E}\|\epsilon_k\|>0$.
+\begin{assumption}[Drift coherence in expectation]\label{as:coh}
+Let $\nu_{k-1}=e^{(k-1)}/\|e^{(k-1)}\|$ if $e^{(k-1)}\neq0$ and an arbitrary fixed unit vector otherwise. There is $c_0\in(0,1]$ such that $\mathbb{E}\big[\langle \nu_{k-1},\epsilon_k\rangle\big]\ge c_0\,\sigma_k$ for every $k$, where $\sigma_k\triangleq\mathbb{E}\|\epsilon_k\|>0$.
 \end{assumption}
 \begin{assumption}[$\epsilon_{\mathrm{corr}}$-accurate contractive corrector]\label{as:corr}
 For every $k$ and every $z$ with $\|z-\zh^{(k)}_{\mathrm{GT}}\|\le R$, the corrected point $\mathcal{C}_k(z)=z-\eta_kC_\omega(z,h_{\mathrm{prefix}},k)$ satisfies $\|\mathcal{C}_k(z)-\zh^{(k)}_{\mathrm{GT}}\|\le(1-\gamma_k)\|z-\zh^{(k)}_{\mathrm{GT}}\|+\epsilon_{\mathrm{corr}}$ with $\gamma_k\in[0,1)$, and all iterates remain in the ball of radius $R$.
 \end{assumption}
 
-Assumption~\ref{as:lip} holds for the released tokenizers because linear interpolation and $\Phi_k$ are linear maps; $L_p\le(1-\varrho)+\varrho\|\mathrm{Conv1d}_k\|_{\mathrm{op}}$. Assumption~\ref{as:coh} formalizes the statement that finer codebooks, fitted to clean residuals, do not cancel drift; it is the worst case and is not guaranteed in practice. Assumption~\ref{as:corr} is the contraction property that the objective~\eqref{eq:loss} aims to induce.
+Assumption~\ref{as:lip} holds for the released tokenizers because linear interpolation and $\Phi_k$ are linear maps; $L_p\le(1-\varrho)+\varrho\|\mathrm{Conv1d}_k\|_{\mathrm{op}}$. Assumption~\ref{as:coh} states that, on average, the code error at level $k$ has a positive component along the drift accumulated so far, i.e., finer codebooks do not cancel it; it only constrains a first moment and is measured on the released checkpoints in Remark~\ref{rem:c0}. Assumption~\ref{as:corr} is the contraction property that the objective~\eqref{eq:loss} aims to induce.
 
 \begin{proposition}[Lyapunov contraction under predictor-corrector revision]\label{prop:contraction}
 Under Assumptions~\ref{as:lip}--\ref{as:coh}, purely additive MS-RVQ generation satisfies
@@ -172,7 +120,7 @@ and, if $\#\{t:\hat r_{k,t}\neq r^\ast_{k,t}\}\le m_k$, then $\sigma_k\le L_p\,m
 If $\gamma_j\ge\gamma>0$ and $\sigma_k\le\bar\sigma$, then $\mathbb{E}V_K\le(\bar\sigma(1-\gamma)+\epsilon_{\mathrm{corr}})/\gamma$ uniformly in $K$, whereas~\eqref{eq:lower} grows linearly in $K$.
 \end{proposition}
 \begin{proof}[Proof sketch]
-For the lower bound, expand $\|e^{(k)}\|^2=\|e^{(k-1)}\|^2+2\langle e^{(k-1)},\epsilon_k\rangle+\|\epsilon_k\|^2\ge(\|e^{(k-1)}\|+c_0\|\epsilon_k\|)^2$, where the inequality uses Assumption~\ref{as:coh} and $c_0^2\le1$. Taking square roots and telescoping gives $\|e^{(K)}\|\ge c_0\sum_k\|\epsilon_k\|$; take expectations. The bound on $\sigma_k$ follows from linearity of $A_k$: $\|\epsilon_k\|\le L_p\|E_k(\hat r_k)-E_k(r_k^\ast)\|\le L_p\,m_k\,\mathrm{diam}(\mathcal{V}_k)$. For the upper bound, $\tilde e^{(k)}=\mathcal{C}_k(\zt^{(k-1)}+A_kE_k(\hat r_k))-\zh^{(k)}_{\mathrm{GT}}$ and $\zt^{(k-1)}+A_kE_k(\hat r_k)-\zh^{(k)}_{\mathrm{GT}}=\tilde e^{(k-1)}+\epsilon_k$ by~\eqref{eq:cum}; Assumption~\ref{as:corr} and the triangle inequality give the one-step bound, which is unrolled by induction (Appendix~\ref{app:p1}). The uniform bound sums a geometric series.
+For the lower bound, Cauchy--Schwarz gives pointwise $\|e^{(k)}\|\ge\langle \nu_{k-1},e^{(k-1)}+\epsilon_k\rangle=\|e^{(k-1)}\|+\langle \nu_{k-1},\epsilon_k\rangle$. Taking expectations and applying Assumption~\ref{as:coh} gives $\mathbb{E}\|e^{(k)}\|\ge\mathbb{E}\|e^{(k-1)}\|+c_0\sigma_k$, which telescopes linearly; no Jensen step is needed. The bound on $\sigma_k$ follows from linearity of $A_k$: $\|\epsilon_k\|\le L_p\|E_k(\hat r_k)-E_k(r_k^\ast)\|\le L_p\,m_k\,\mathrm{diam}(\mathcal{V}_k)$. For the upper bound, $\tilde e^{(k)}=\mathcal{C}_k(\zt^{(k-1)}+A_kE_k(\hat r_k))-\zh^{(k)}_{\mathrm{GT}}$ and $\zt^{(k-1)}+A_kE_k(\hat r_k)-\zh^{(k)}_{\mathrm{GT}}=\tilde e^{(k-1)}+\epsilon_k$ by~\eqref{eq:cum}; Assumption~\ref{as:corr} and the triangle inequality give the one-step bound, which is unrolled by induction (Appendix~\ref{app:p1}). The uniform bound sums a geometric series.
 \end{proof}
 
 \begin{assumption}[Decoder regularity on the fine-drop support]\label{as:dec}
@@ -181,6 +129,21 @@ The logit map $f=D_\psi$ is $L_D$-Lipschitz, $\|f(a)-f(b)\|_F\le L_D\|a-b\|_F$, 
 \begin{assumption}[Geometric decay of increments]\label{as:geo}
 The increments $\Delta\zt^{(j)}=\zt^{(j)}-\zt^{(j-1)}$ satisfy $\|\Delta\zt^{(j+1)}\|\le\rho\|\Delta\zt^{(j)}\|$ for $j\ge k^\ast$, with $\rho\in(0,1)$.
 \end{assumption}
+
+\paragraph{Off-manifold coupling.} Proposition~\ref{prop:contraction} treats $\sigma_k$ as given, but in closed loop the generator's error at level $k+1$ depends on its input. Let $\mathcal{M}_k=\{\sum_{j\le k}A_jE_j(r_j)\}$ be the lattice of level-$k$ codeword sums on which the generator was trained, and write $W_k=\|\zh^{(k)}-\zh^{(k)}_{\mathrm{GT}}\|$ for the error \emph{before} correction at level $k$.
+\begin{assumption}[Off-manifold sensitivity]\label{as:offm}
+There are $\sigma^{\mathrm{on}}_{k+1}$ and $L_G\ge0$ such that, for inputs $\zt$ of the generator at level $k+1$, $\mathbb{E}\|\epsilon_{k+1}\|\le\sigma^{\mathrm{on}}_{k+1}+L_G\,\mathbb{E}[\mathrm{dist}(\zt,\mathcal{M}_k)]$, with $\sigma^{\mathrm{on}}_{k+1}$ the error on lattice inputs.
+\end{assumption}
+\begin{corollary}[When in-loop correction helps]\label{cor:LG}
+Suppose Assumptions~\ref{as:lip}, \ref{as:corr} and~\ref{as:offm} hold, and Assumption~\ref{as:coh} holds at level $k+1$ for the uncorrected process with error $\epsilon^{\mathrm{u}}_{k+1}$ and $\sigma^{\mathrm{u}}_{k+1}=\mathbb{E}\|\epsilon^{\mathrm{u}}_{k+1}\|$. Then one in-loop correction at level $k$ yields a smaller expected error after level $k+1$ than not correcting whenever
+\begin{equation}
+L_G<L_G^{\ast}\triangleq\frac{\gamma_k\,\mathbb{E}W_k-\epsilon_{\mathrm{corr}}-\big(\sigma^{\mathrm{on}}_{k+1}-c_0\,\sigma^{\mathrm{u}}_{k+1}\big)}{D_k},\qquad D_k=\mathbb{E}\big[\mathrm{dist}(\zt^{(k)},\mathcal{M}_k)\big]. \label{eq:LGthr}
+\end{equation}
+\end{corollary}
+\begin{proof}
+For the corrected process, the triangle inequality and Assumption~\ref{as:corr} give $\|\tilde e^{(k+1)}\|\le\|\tilde e^{(k)}\|+\|\epsilon_{k+1}\|\le(1-\gamma_k)W_k+\epsilon_{\mathrm{corr}}+\|\epsilon_{k+1}\|$; taking expectations and applying Assumption~\ref{as:offm}, $\mathbb{E}\|\tilde e^{(k+1)}\|\le(1-\gamma_k)\mathbb{E}W_k+\epsilon_{\mathrm{corr}}+\sigma^{\mathrm{on}}_{k+1}+L_GD_k$. For the uncorrected process, the pointwise argument of Proposition~\ref{prop:contraction} with Assumption~\ref{as:coh} gives $\mathbb{E}\|e^{(k+1)}\|\ge\mathbb{E}W_k+c_0\sigma^{\mathrm{u}}_{k+1}$. The first bound is below the second exactly when $L_GD_k<\gamma_k\mathbb{E}W_k-\epsilon_{\mathrm{corr}}-(\sigma^{\mathrm{on}}_{k+1}-c_0\sigma^{\mathrm{u}}_{k+1})$, which is~\eqref{eq:LGthr}.
+\end{proof}
+The threshold makes the trade-off explicit: the benefit of correction scales with the contraction $\gamma_k$ and the size of the accumulated error $W_k$, and the cost with the generator's off-manifold sensitivity $L_G$ times the lattice distance $D_k$ the correction creates. Because a contraction must move the latent by at least $\gamma_k W_k-\epsilon_{\mathrm{corr}}$, $D_k$ is typically of the same order as the benefit, so~\eqref{eq:LGthr} requires $L_G$ well below one unless the correction stays close to $\mathcal{M}_k$, which motivates projection (Section~\ref{sec:results}) and off-lattice robustness training (Section~\ref{sec:concl}).
 
 \begin{proposition}[Rate-distortion bound for Cauchy halting]\label{prop:rd}
 Suppose halting occurs at $k^\ast$ with $\|\Delta\zt^{(k^\ast)}\|\le\tau$ (absolute flux, i.e., $\Delta_{k^\ast}\|\zt^{(k^\ast-1)}\|\le\tau$). Under Assumptions~\ref{as:dec}--\ref{as:geo}, $\|\zt^{(K)}-\zt^{(k^\ast)}\|\le\sum_{j=k^\ast+1}^{K}\|\Delta\zt^{(j)}\|\le\rho\tau/(1-\rho)\le\tau/(1-\rho)$, and with $p_\psi(\cdot\mid z)=\mathrm{softmax}(f(z))$ applied per position,
@@ -194,6 +157,11 @@ The first chain is the triangle inequality and a geometric series. For two logit
 
 \begin{remark}[Role of fine-drop]
 Proposition~\ref{prop:rd} compares two decoder outputs; it does not by itself say that $D_\psi(\zt^{(k^\ast)})$ is a sensible output. Fine-drop training places $\zt^{(k^\ast)}$ on the decoder's training support, so the Lipschitz constant in Assumption~\ref{as:dec} is a local property of a region the decoder was fitted on rather than an extrapolation. If $D_\psi(\zt^{(K)})$ is correct with margin larger than $\sqrt{2\cdot\mathrm{RHS}}$ in total variation at every position (Pinsker's inequality~\citep{pinsker1964,cover2006elements}), the halted argmax output equals the full-depth one.
+\end{remark}
+
+
+\begin{remark}[Measured drift coherence and off-manifold sensitivity]\label{rem:c0}
+On greedy rollouts of the released checkpoints (64 Sudoku-hard boards, 12 WMT14 sentences), the per-level ratio $\hat c_{0,k}=\mathbb{E}\langle \nu_{k-1},\epsilon_k\rangle/\sigma_k$ has mean \CzeroSud{} on Sudoku-hard (negative at 8 of 11 levels) and \CzeroWmt{} on WMT14 (negative at 1 of 10). Assumption~\ref{as:coh} therefore fails on Sudoku, where finer levels on average partially \emph{cancel} accumulated drift, and holds only weakly ($c_0\approx0.08$) on WMT14. The linear lower bound~\eqref{eq:lower} is thus a worst-case statement that the released models do not attain, and additive drift is not the bottleneck it was hypothesized to be; this leaves a corrector little error to remove. Perturbing rollout states off $\mathcal{M}_k$ with the in-loop corrector at scales $s\in\{0,0.25,0.5,1\}$ and regressing next-level code error on lattice distance within each level gives a median slope $\hat L_G=$ \LGSud{} (Sudoku-hard) and \LGWmt{} (WMT14). On Sudoku-hard the next-level error rises from \SigOnSud{} at $s=0$ to \SigOneSud{} at $s=1$ as the mean lattice distance grows from \DistZeroSud{} to \DistOneSud; on WMT14 the one-step error is almost unchanged (\SigOnWmt{} to \SigOneWmt), so the closed-loop collapse there comes from compounding of off-lattice states across levels rather than from a single step.
 \end{remark}
 
 \begin{remark}[Empirical status of the assumptions]

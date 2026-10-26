@@ -1,5 +1,5 @@
 \documentclass[10pt]{article}
-\usepackage{tmlr}
+\usepackage[preprint]{tmlr}
 % Camera-ready: \usepackage[accepted]{tmlr}   Preprint: \usepackage[preprint]{tmlr}
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
@@ -25,12 +25,13 @@
 \newcommand{\Up}{\mathrm{Up}}
 \newcommand{\KL}{D_{\mathrm{KL}}}
 \input{numbers.tex}
+\input{numbers_theory.tex}
+\input{numbers_v5.tex}
 
 \title{Why Post-Hoc Latent Revision and Adaptive Halting Fail on Frozen Coarse-to-Fine Language Models: Theoretical Conditions and Empirical Diagnostics}
 
 % Authors are hidden automatically in the anonymous submission mode.
-\author{\name Anonymous Authors \email anonymous@example.com\\
-\addr Anonymous Institution}
+\author{\name S M Tasfik Us Salahin \email TashfikS@users.noreply.github.com}
 
 \def\month{MM}
 \def\year{YYYY}
@@ -47,12 +48,13 @@
 This work studies inference-time modifications of publicly released text-generation models on puzzle solving, translation and summarization benchmarks. It does not introduce new models, data or capabilities, and its main finding is that the studied modifications do not improve the released models. We do not foresee direct negative societal consequences beyond those of the underlying generators.
 
 \section*{Reproducibility Statement}
-All experiments use the unmodified official code, checkpoints and datasets of the evaluated models and run on a single 16\,GB GPU. The harness, Kaggle job scripts, per-run result files, per-item predictions and the scripts that generate every table and figure from these files are provided as anonymized supplementary material; implementation and protocol details are given in Appendix~\ref{app:repro}.
+All experiments use the unmodified official code, checkpoints and datasets of the evaluated models and run on a single 16\,GB GPU. The harness, Kaggle job scripts, per-run result files, per-item predictions and the scripts that generate every table and figure from these files are available at \url{https://github.com/TashfikS/ncm-posthoc-revision-halting}; implementation and protocol details are given in Appendix~\ref{app:repro}.
 
 \bibliography{refs}
 \bibliographystyle{tmlr}
 
 \appendix
 \input{appendix.tex}
+\input{appendix_extra.tex}
 
 \end{document}
